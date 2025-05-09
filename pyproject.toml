@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "skincare-gpt"
+version = "0.1.0"
+description = ""
+authors = ["Stephen Chung <53108134+spchung@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+openai = "^1.77.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
