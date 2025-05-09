@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from app.internal.qdrant import semantic_search
 
 # load token from .env file
 load_dotenv()
@@ -48,6 +49,18 @@ def test_db_connection():
         print(f"Database connection test failed: {str(e)}")
         return False
 
+
+def test_qdrant():
+    try:
+        res = semantic_search("test")
+        print(res)
+    except Exception as e:
+        print(f"Qdrant connection test failed: {str(e)}")
+
+
 # Test the database connection
 print("Testing database connection...")
 test_db_connection()
+
+print("Testing Qdrant connection...")
+test_qdrant()
