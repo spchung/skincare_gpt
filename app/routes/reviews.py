@@ -2,11 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.internal.postgres import get_db
-from app.models.sephora import SephoraReview
+from app.models.sephora import SephoraReview, ReviewBase
 
 router = APIRouter()
 
-@router.get("/reviews/", response_model=List[dict])
+@router.get("/reviews/", response_model=List[ReviewBase])
 async def get_reviews(
     skip: int = 0,
     limit: int = 10,
@@ -28,16 +28,16 @@ async def get_reviews(
         query = query.filter(SephoraReview.skin_type.ilike(f"%{skin_type}%"))
     
     reviews = query.offset(skip).limit(limit).all()
-    return [review.__dict__ for review in reviews]
+    return [review.to_pydantic() for review in reviews]
 
-@router.get("/reviews/{review_id}", response_model=dict)
+@router.get("/reviews/{review_id}", response_model=ReviewBase)
 async def get_review(review_id: str, db: Session = Depends(get_db)):
     review = db.query(SephoraReview).filter(SephoraReview.review_id == review_id).first()
     if review is None:
         raise HTTPException(status_code=404, detail="Review not found")
-    return review.__dict__
+    return review.to_pydantic()
 
-@router.get("/reviews/product/{product_id}", response_model=List[dict])
+@router.get("/reviews/product/{product_id}", response_model=List[ReviewBase])
 async def get_product_reviews(
     product_id: str,
     skip: int = 0,
@@ -47,4 +47,4 @@ async def get_product_reviews(
     reviews = db.query(SephoraReview).filter(
         SephoraReview.product_id == product_id
     ).offset(skip).limit(limit).all()
-    return [review.__dict__ for review in reviews] 
+    return [review.to_pydantic() for review in reviews] 
