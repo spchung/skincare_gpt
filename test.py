@@ -1,64 +1,53 @@
 import getpass
 import os
 from dotenv import load_dotenv
+from sqlalchemy import Column, Integer, String, create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 
 # load token from .env file
 load_dotenv()
 
+# Database setup
+DATABASE_URL = os.getenv("DATABASE_URL")
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
 
-from typing import Annotated
+# Test model
+class TestModel(Base):
+    __tablename__ = "test_table"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
 
-from typing_extensions import TypedDict
+# Create tables
+Base.metadata.create_all(bind=engine)
 
-from langgraph.graph import StateGraph, START, END
-from langgraph.graph.message import add_messages
-
-
-class State(TypedDict):
-    # Messages have the type "list". The `add_messages` function
-    # in the annotation defines how this state key should be updated
-    # (in this case, it appends messages to the list, rather than overwriting them)
-    messages: Annotated[list, add_messages]
-
-
-graph_builder = StateGraph(State)
-
-
-from langchain.chat_models import init_chat_model
-
-llm = init_chat_model("openai:gpt-4o-mini")
-
-
-def chatbot(state: State):
-    return {"messages": [llm.invoke(state["messages"])]}
-
-
-# The first argument is the unique node name
-# The second argument is the function or object that will be called whenever
-# the node is used.
-graph_builder.add_node("chatbot", chatbot)
-
-graph_builder.add_edge(START, "chatbot")
-
-graph = graph_builder.compile()
-
-
-def stream_graph_updates(user_input: str):
-    for event in graph.stream({"messages": [{"role": "user", "content": user_input}]}):
-        for value in event.values():
-            print("Assistant:", value["messages"][-1].content)
-
-
-while True:
+def test_db_connection():
     try:
-        user_input = input("User: ")
-        if user_input.lower() in ["quit", "exit", "q"]:
-            print("Goodbye!")
-            break
-        stream_graph_updates(user_input)
-    except:
-        # fallback if input() is not available
-        user_input = "What do you know about LangGraph?"
-        print("User: " + user_input)
-        stream_graph_updates(user_input)
-        break
+        # Create a session
+        db = SessionLocal()
+        
+        # Create a test record
+        test_record = TestModel(name="test_record")
+        db.add(test_record)
+        db.commit()
+        
+        # Retrieve the record
+        result = db.query(TestModel).first()
+        print(f"Successfully connected to database and retrieved record: {result.name}")
+        
+        # Clean up
+        db.delete(result)
+        db.commit()
+        db.close()
+        
+        return True
+    except Exception as e:
+        print(f"Database connection test failed: {str(e)}")
+        return False
+
+# Test the database connection
+print("Testing database connection...")
+test_db_connection()
