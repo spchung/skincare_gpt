@@ -1,16 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from typing import Optional, List
-import openai
-import os
+from typing import Optional, List, Dict, Any, Union
+from langchain_core.messages import HumanMessage, AIMessage
 from dotenv import load_dotenv
+from app.agents.chat import process_chat_message_stream, process_chat_message_no_stream
 
 # Load environment variables
 load_dotenv()
-
-# Configure OpenAI
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
 router = APIRouter()
 
@@ -18,46 +15,63 @@ class ChatRequestBody(BaseModel):
     message: str
     session_id: str
 
-def stream_chat_response(message: str):
-    try:
-        response = openai.chat.completions.create(
-            model="gpt-4",
-            messages=[{"role": "user", "content": message}],
-            temperature=0.7,
-            max_tokens=1000,
-            stream=True
-        )
-        
-        for chunk in response:
-            if chunk.choices[0].delta.content:
-                yield chunk.choices[0].delta.content
-                
-    except Exception as e:
-        yield f"Error: {str(e)}"
+class Content(BaseModel):
+    type: str
+    text: str
+
+class Status(BaseModel):
+    type: str
+    reason: Optional[str] = None
+
+class Metadata(BaseModel):
+    custom: Dict[str, Any]
+    unstable_annotations: Optional[List[Any]] = None
+    unstable_data: Optional[List[Any]] = None
+    steps: Optional[List[Any]] = None
+
+class Message(BaseModel):
+    id: str
+    createdAt: str
+    role: str
+    content: List[Content]
+    attachments: Optional[List[Any]] = []
+    metadata: Metadata
+    status: Optional[Status] = None
+
+
+class MessagesPayload(BaseModel):
+    messages: List[Message]
+
+
+class MessagesPayload(BaseModel):
+    messages: List[Message]
 
 @router.post("/chat")
-def stream(body: ChatRequestBody):
+async def stream(body: MessagesPayload):
     return StreamingResponse(
-        stream_chat_response(body.message),
+        process_chat_message_stream(body.messages, '123'),
         media_type="text/event-stream"
     )
 
 @router.post("/chat_no_stream")
-async def chat_no_stream(body: ChatRequestBody):
-    try:
-        response = openai.chat.completions.create(
-            model="gpt-4",
-            messages=[{"role": "user", "content": body.message}],
-            temperature=0.7,
-            max_tokens=1000,
-            stream=False
-        )
-        
-        return {
-            "response": response.choices[0].message.content,
-            "session_id": body.session_id
-        }
-                
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    
+def chat_no_stream(body: MessagesPayload | Any):
+    messages = convert_frontend_messages_to_langchain(body.messages)
+    return process_chat_message_no_stream(messages, '123')
+
+def convert_frontend_messages_to_langchain(messages: List[Message]) -> List[Union[HumanMessage, AIMessage]]:
+    lc_messages = []
+
+    for msg in messages:
+        role = msg.role
+        content_list = msg.content
+        text_content = [ c for c in content_list if c.type == "text" ]
+        text = " ".join([c.text for c in text_content])
+
+        if role == "user":
+            lc_messages.append(HumanMessage(content=text))
+        elif role == "assistant":
+            lc_messages.append(AIMessage(content=text))
+        else:
+            pass
+
+    return lc_messages
