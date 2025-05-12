@@ -41,4 +41,23 @@ def stream(body: ChatRequestBody):
         stream_chat_response(body.message),
         media_type="text/event-stream"
     )
+
+@router.post("/chat_no_stream")
+async def chat_no_stream(body: ChatRequestBody):
+    try:
+        response = openai.chat.completions.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": body.message}],
+            temperature=0.7,
+            max_tokens=1000,
+            stream=False
+        )
+        
+        return {
+            "response": response.choices[0].message.content,
+            "session_id": body.session_id
+        }
+                
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     
