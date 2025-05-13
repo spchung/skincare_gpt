@@ -5,6 +5,10 @@ from typing import Optional, List, Dict, Any, Union
 from langchain_core.messages import HumanMessage, AIMessage
 from dotenv import load_dotenv
 from app.agents.chat import process_chat_message_stream, process_chat_message_no_stream
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 # Load environment variables
 load_dotenv()
@@ -42,25 +46,12 @@ class Message(BaseModel):
 class MessagesPayload(BaseModel):
     messages: List[Message]
 
-
 class MessagesPayload(BaseModel):
     messages: List[Message]
 
-@router.post("/chat")
-async def stream(body: MessagesPayload):
-    return StreamingResponse(
-        process_chat_message_stream(body.messages, '123'),
-        media_type="text/event-stream"
-    )
-
-@router.post("/chat_no_stream")
-def chat_no_stream(body: MessagesPayload | Any):
-    messages = convert_frontend_messages_to_langchain(body.messages)
-    return process_chat_message_no_stream(messages, '123')
-
+## helpers
 def convert_frontend_messages_to_langchain(messages: List[Message]) -> List[Union[HumanMessage, AIMessage]]:
     lc_messages = []
-
     for msg in messages:
         role = msg.role
         content_list = msg.content
@@ -75,3 +66,17 @@ def convert_frontend_messages_to_langchain(messages: List[Message]) -> List[Unio
             pass
 
     return lc_messages
+
+@router.post('/chat')
+async def chat(body: MessagesPayload):
+    logger.info(f"Chat request received: {body}")
+    messages = convert_frontend_messages_to_langchain(body.messages)
+    return StreamingResponse(
+        process_chat_message_stream(messages, '123'),
+        media_type="text/event-stream"
+    )
+
+@router.post("/chat_no_stream")
+def chat_no_stream(body: MessagesPayload):
+    messages = convert_frontend_messages_to_langchain(body.messages)
+    return process_chat_message_no_stream(messages, '123')

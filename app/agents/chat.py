@@ -1,5 +1,5 @@
 from typing import Annotated, Dict, Any, List
-
+import time
 from typing_extensions import TypedDict
 
 from langgraph.graph import StateGraph, START, END
@@ -25,16 +25,11 @@ llm = init_chat_model("openai:gpt-4o-mini")
 def chatbot(state: State):
     return {"messages": [llm.invoke(state["messages"])]}
 
-def return_last_message(state: State):
-    return {"messages": [state["messages"][-1]]}
-
 # build graph
 graph_builder.add_node("chatbot", chatbot)
-graph_builder.add_node("return_last_message", return_last_message)
 
 graph_builder.add_edge(START, "chatbot")
-graph_builder.add_edge("chatbot", "return_last_message")
-graph_builder.add_edge("return_last_message", END)
+graph_builder.add_edge("chatbot", END)
 
 graph = graph_builder.compile()
 
