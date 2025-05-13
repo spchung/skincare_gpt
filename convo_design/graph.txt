@@ -1,0 +1,8 @@
+1. Question Reshaping
+- Can the question be reframed?
+
+2. Intnet Classification
+    2.1. Basic Questionaire
+    2.2. Product to Product search
+    2.3. Ingredient to Product search
+    2.4. Ingredient and Product web search

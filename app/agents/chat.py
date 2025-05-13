@@ -14,7 +14,7 @@ class State(TypedDict):
     # in the annotation defines how this state key should be updated
     # (in this case, it appends messages to the list, rather than overwriting them)
     messages: Annotated[list, add_messages]
-
+    session_id: str
 
 graph_builder = StateGraph(State)
 from langchain.chat_models import init_chat_model
@@ -35,13 +35,13 @@ graph = graph_builder.compile()
 
 # no streaming
 def process_chat_message_no_stream(messages: List[AIMessage|HumanMessage], session_id: str):
-    res = graph.invoke({"messages": messages})
+    res = graph.invoke({"messages": messages, "session_id": session_id})
     res = res["messages"][-1]
     return res
 
 # streaming
 async def process_chat_message_stream(messages: list, session_id: str):
-    for event in graph.stream({"messages": messages}):
+    for event in graph.stream({"messages": messages, "session_id": session_id}):
         for value in event.values():
             content = value["messages"][-1].content
             if isinstance(content, str):

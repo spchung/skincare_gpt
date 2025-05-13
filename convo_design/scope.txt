@@ -1,0 +1,17 @@
+Version 1:
+- collect basic information from user
+    - gender
+    - skin type
+    - current skin care routine / or lack of 
+    results => {
+        gender: str
+        skin_type: str
+        routine_description: str
+        products_used: List [str]
+    }
+
+- product recommendation
+    - search vector db for similar products (direct query)
+    - search vecotr db using provided context
+- product reviews
+    - using collected information
