@@ -1,32 +1,16 @@
-from typing import Dict, List, Optional, Tuple, Any, Annotated, Literal
-from langgraph.graph.message import add_messages
-from pydantic import BaseModel, Field
-from langgraph.graph import StateGraph, START, END
+from typing import Optional, Tuple
 from langchain_openai import ChatOpenAI
-
-# Your existing questionnaire model
-class BasicQuestionaireModel(BaseModel):
-    gender: Literal["male", "female", "non-binary", "other"] | None = Field(None, description="The gender of the user")
-    skin_type: Literal["dry", "oily", "combination", "sensitive"] | None = Field(None, description="The skin type of the user")
-    has_routine: bool | None = Field(None, description="Whether the user has a skin care routine")
-    routine_description: str | None = Field(None, description="The description of the user's skin care routine")
-    products_used: List[str] | None = Field(None, description="The products that the user has used")
-    current_field: str | None = Field(None, description="The current field of the questionnaire")
-
-class BasicQuestionaireModel_Gender(BaseModel):
-    gender: Literal["male", "female", "non-binary", "other"] | None = Field(None, description="The gender of the user")
-
-class BasicQuestionaireModel_SkinType(BaseModel):
-    skin_type: Literal["dry", "oily", "combination", "sensitive"] | None = Field(None, description="The skin type of the user")
-
-class BasicQuestionaireModel_HasRoutine(BaseModel):
-    has_routine: bool | None = Field(None, description="Whether the user has a skin care routine")
-
-class BasicQuestionaireModel_RoutineDescription(BaseModel):
-    routine_description: str | None = Field(None, description="The description of the user's skin care routine")
-
-class BasicQuestionaireModel_ProductsUsed(BaseModel):
-    products_used: List[str] | None = Field(None, description="The products that the user has used")
+from langchain_core.messages import HumanMessage, AIMessage
+from app.lang_graphs.chat_v1.models.state import State
+from app.lang_graphs.chat_v1.memory.thread_context import get_context_store
+from app.lang_graphs.chat_v1.models.basic_questioinaire import (
+    BasicQuestionaireModel,
+    BasicQuestionaireModel_Gender,
+    BasicQuestionaireModel_SkinType,
+    BasicQuestionaireModel_HasRoutine,
+    BasicQuestionaireModel_RoutineDescription,
+    BasicQuestionaireModel_ProductsUsed
+)
 
 FIELD_QUESTIONS = {
     "gender": "What is your gender?",
@@ -37,7 +21,7 @@ FIELD_QUESTIONS = {
 }
 
 # helper
-def is_form_complete(form: BasicQuestionaireModel) -> bool:
+def is_questionnaire_complete(form: BasicQuestionaireModel) -> bool:
     if form.has_routine == False and form.gender and form.skin_type:
         return True
     
@@ -99,3 +83,53 @@ def answer_field(current_form: BasicQuestionaireModel, field: str, user_answer: 
         return current_form
     else:
         return current_form
+
+## Handler Node
+def questionnaire_handler(state: State):
+    thread_context_store = get_context_store()
+
+    """Process the questionnaire state and determine next action"""
+    if state['questionnaire'] is None:
+        raise ValueError("Questionnaire not found in state")
+    
+    questionnaire = state['questionnaire']
+    
+    # Get the last user message
+    last_message = state['messages'][-1]
+    if not isinstance(last_message, HumanMessage):
+        raise ValueError("Last message is not a human message")
+    
+    if is_questionnaire_complete(questionnaire):
+        ## Tell user already completed
+        pass
+
+    # Process the answer if we have a current field
+    if not questionnaire.current_field:
+        ## init questionnaire
+        init_question, _ = get_init_question(questionnaire)
+        return {
+            "messages": [AIMessage(content=init_question)],
+            "questionnaire": questionnaire,
+        }
+        
+    questionnaire = answer_field(
+        questionnaire, 
+        questionnaire.current_field, 
+        last_message.content
+    )
+
+    question, _ = get_next_question(questionnaire)
+    # save thread context
+    thread_context_store.set_thread_questionnaire(state['thread_id'], questionnaire)
+    
+    # exit 
+    if is_questionnaire_complete(questionnaire):
+        return {
+            "messages": [AIMessage(content=" Great! Thank you for completing the questionnaire! What can I you with today?")],
+            "questionnaire": questionnaire,
+        }
+
+    return {
+        "messages": [AIMessage(content=question)],
+        "questionnaire": questionnaire,
+    }

@@ -1,6 +1,5 @@
-from pydantic import BaseModel, Field
-from app.lang_graphs.chat_v1.handlers.basic_questioinaire import BasicQuestionaireModel
-from typing import Dict
+from pydantic import BaseModel
+from app.lang_graphs.chat_v1.models.basic_questioinaire import BasicQuestionaireModel
 
 
 class ThreadContext(BaseModel):
@@ -32,3 +31,11 @@ class ThreadContextStore:
         print(f"ThreadContextStore: {len(self.context_store)} threads")
         for thread_id, context in self.context_store.items():
             print(f"  - {thread_id}: {context.questionnaire.model_dump_json()}")
+
+context_store = None
+
+def get_context_store():
+    global context_store
+    if context_store is None:
+        context = ThreadContextStore()
+    return context
