@@ -28,7 +28,6 @@ class BasicQuestionaireModel_RoutineDescription(BaseModel):
 class BasicQuestionaireModel_ProductsUsed(BaseModel):
     products_used: List[str] | None = Field(None, description="The products that the user has used")
 
-
 FIELD_QUESTIONS = {
     "gender": "What is your gender?",
     "skin_type": "What is your skin type? (e.g., dry, oily, combination, sensitive)",
@@ -50,8 +49,8 @@ def get_next_question(form: BasicQuestionaireModel) -> Tuple[str, Optional[str]]
     if missing_fields:
         field = missing_fields[0]
         
+        # update current field
         form.current_field = field
-
         return FIELD_QUESTIONS[field], field
     
     return "Thank you for completing the questionnaire!", None
@@ -59,9 +58,12 @@ def get_next_question(form: BasicQuestionaireModel) -> Tuple[str, Optional[str]]
 def get_init_question(form: BasicQuestionaireModel) -> Tuple[str, str]:
     question, field = get_next_question(form)
     
+    # update current field
+    form.current_field = field
+    
+    # TODO: implement a prompt library
     init_question = "Hi, I'm a skincare assistant. Let's start with a few questions to help me understand your skin care routine.\n"
     init_question += question
-    form.current_field = field
 
     return init_question, field
 
@@ -97,20 +99,3 @@ def answer_field(current_form: BasicQuestionaireModel, field: str, user_answer: 
         return current_form
     else:
         return current_form
-
-
-if __name__ == "__main__":
-    
-    form = BasicQuestionaireModel()
-
-    while not is_form_complete(form):
-        question, field = get_next_question(form)
-        user_answer = input(question)
-        form = answer_field(form, field, user_answer)
-
-    print(form)
-
-    
-
-    
-
