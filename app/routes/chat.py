@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from typing import Optional, List, Dict, Any, Union
 from langchain_core.messages import HumanMessage, AIMessage
 from dotenv import load_dotenv
-from app.agents.chat import process_chat_message_stream, process_chat_message_no_stream
+from app.lang_graphs.chat_v1.main import process_chat_message_stream, process_chat_message_sync
 import logging
 
 logger = logging.getLogger(__name__)
@@ -76,7 +76,7 @@ async def chat(body: MessagesPayload):
         media_type="text/event-stream"
     )
 
-@router.post("/chat_no_stream")
-def chat_no_stream(body: MessagesPayload):
+@router.post("/chat_sync")
+def chat_sync(body: MessagesPayload):
     messages = convert_frontend_messages_to_langchain(body.messages)
-    return process_chat_message_no_stream(messages, '123')
+    return process_chat_message_sync(messages, '123')

@@ -11,6 +11,7 @@ class BasicQuestionaireModel(BaseModel):
     has_routine: bool | None = Field(None, description="Whether the user has a skin care routine")
     routine_description: str | None = Field(None, description="The description of the user's skin care routine")
     products_used: List[str] | None = Field(None, description="The products that the user has used")
+    current_field: str | None = Field(None, description="The current field of the questionnaire")
 
 class BasicQuestionaireModel_Gender(BaseModel):
     gender: Literal["male", "female", "non-binary", "other"] | None = Field(None, description="The gender of the user")
@@ -48,10 +49,21 @@ def get_next_question(form: BasicQuestionaireModel) -> Tuple[str, Optional[str]]
     
     if missing_fields:
         field = missing_fields[0]
+        
+        form.current_field = field
+
         return FIELD_QUESTIONS[field], field
     
     return "Thank you for completing the questionnaire!", None
 
+def get_init_question(form: BasicQuestionaireModel) -> Tuple[str, str]:
+    question, field = get_next_question(form)
+    
+    init_question = "Hi, I'm a skincare assistant. Let's start with a few questions to help me understand your skin care routine.\n"
+    init_question += question
+    form.current_field = field
+
+    return init_question, field
 
 ## invocation function
 llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
@@ -82,6 +94,8 @@ def answer_field(current_form: BasicQuestionaireModel, field: str, user_answer: 
         struct_llm = llm.with_structured_output(BasicQuestionaireModel_ProductsUsed)
         output = struct_llm.invoke(user_answer)
         current_form.products_used = output.products_used
+        return current_form
+    else:
         return current_form
 
 

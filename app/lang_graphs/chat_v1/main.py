@@ -1,64 +1,112 @@
 from typing import Annotated, Dict, Any, List
 from typing_extensions import TypedDict
-
+from pydantic import BaseModel, Field
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 from langchain_core.messages import HumanMessage, AIMessage
+from .handlers.basic_questioinaire import (
+    BasicQuestionaireModel, 
+    get_next_question, 
+    answer_field,
+    get_init_question
+)
+from .memory.thread_context import ThreadContextStore
 
-from .handlers.basic_questioinaire import BasicQuestionaireModel
+## temp - be replaced with redis
+thread_context_store = ThreadContextStore()
 
 # State
 class State(TypedDict):
     messages: Annotated[list, add_messages]
     session_id: str
+    questionnaire: BasicQuestionaireModel
 
-# graph definition
+# Initialize graph
 graph_builder = StateGraph(State)
 from langchain.chat_models import init_chat_model
 
 llm = init_chat_model("openai:gpt-4o-mini")
 
 ## nodes
+def process_questionnaire(state: State):
+    """Process the questionnaire state and determine next action"""
+    if state['questionnaire'] is None:
+        raise ValueError("Questionnaire not found in state")
+    
+    questionnaire = state['questionnaire']
+    
+    # Get the last user message
+    last_message = state['messages'][-1]
+    if isinstance(last_message, HumanMessage):
+        # Process the answer if we have a current field
+        if questionnaire.current_field:
+            questionnaire = answer_field(
+                questionnaire, 
+                questionnaire.current_field, 
+                last_message.content
+            )
 
-# 0. Basic Questionaire
-def basic_questionaire(state: State):
-    struct_llm = llm.with_structured_output(BasicQuestionaireModel)
-    output = struct_llm.invoke(state["messages"])
-    print(output)
-    return {"messages": [output]}
+        else:
+            ## init questionnaire
+            init_question, init_field = get_init_question(questionnaire)
 
-# # 1. Reshape Question (if needed)
-# def reshape_question(state: State):
-#     return {"messages": [llm.invoke(state["messages"])]}
+            return {
+                "messages": [AIMessage(content=init_question)],
+                "questionnaire": questionnaire,
+                "current_field": init_field
+            }
+    
+    # Get next question
+    question, field = get_next_question(state['questionnaire'])
 
-# # 2. Intnet Classification
-# def classify_intent(state: State):
-#     return {"messages": [llm.invoke(state["messages"])]}
+    # save thread context
+    thread_context_store.set_thread_questionnaire(state['session_id'], state['questionnaire'])
+    
+    thread_context_store.info()
 
+    # Add response to messages
+    return {
+        "messages": [AIMessage(content=question)],
+        "questionnaire": state['questionnaire'],
+        "current_field": field
+    }
 
 # build graph
-graph_builder.add_node("basic_questionaire", basic_questionaire)
-# graph_builder.add_node("reshape_question", reshape_question)
-# graph_builder.add_node("classify_intent", classify_intent)
-
-
-graph_builder.add_edge(START, "basic_questionaire")
-graph_builder.add_edge("basic_questionaire", END)
+graph_builder.add_node("questionnaire_state", process_questionnaire)
+graph_builder.add_edge(START, "questionnaire_state")
+graph_builder.add_edge("questionnaire_state", END)
 
 graph = graph_builder.compile()
 
-
 # Invocation
-def process_chat_message_no_stream(messages: List[AIMessage|HumanMessage], session_id: str):
-    res = graph.invoke({"messages": messages, "session_id": session_id})
-    res = res["messages"][-1]
-    return res
-
-if __name__ == "__main__":
-    # user question form
-    questionaire_form = BasicQuestionaireModel()
+def process_chat_message_sync(messages: List[AIMessage|HumanMessage], session_id: str):
     
-    # init_question = 
-    messages = [HumanMessage(content="Hello, how are you?")]
-    res = process_chat_message_no_stream(messages, "123")
-    print(res)
+    thread_context_store.info()
+    questionnaire_form = thread_context_store.get_thread_context(session_id).questionnaire
+    
+    res = graph.invoke({
+        "messages": messages, 
+        "session_id": session_id,
+        "questionnaire": questionnaire_form,
+        "current_field": None
+    })
+
+    return res["messages"][-1]
+
+# Streaming version
+async def process_chat_message_stream(messages: List[AIMessage|HumanMessage], session_id: str):
+    
+    thread_context_store.info()
+
+    questionnaire_form = thread_context_store.get_thread_context(session_id).questionnaire
+    print(questionnaire_form)
+    
+    for event in graph.stream({
+        "messages": messages, 
+        "session_id": session_id,
+        "questionnaire": questionnaire_form,
+        "current_field": None
+    }):
+        for value in event.values():
+            if "messages" in value:
+                yield value["messages"][-1].content
