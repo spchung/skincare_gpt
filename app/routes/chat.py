@@ -1,11 +1,15 @@
+import json
+import asyncio
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
+from fastapi.websockets import WebSocketState
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any, Union
 from langchain_core.messages import HumanMessage, AIMessage
 from dotenv import load_dotenv
 from app.lang_graphs.chat_v1.main import process_chat_message_stream, process_chat_message_sync
 import logging
+from fastapi import WebSocket
 
 logger = logging.getLogger(__name__)
 
@@ -80,3 +84,42 @@ async def chat(body: MessagesPayload):
 def chat_sync(body: MessagesPayload):
     messages = convert_frontend_messages_to_langchain(body.messages)
     return process_chat_message_sync(messages, '123')
+
+
+## WebSocket
+ws_router = APIRouter()
+
+# temp - to remove
+async def repeat_every_n_seconds(n, socket: WebSocket):
+    while True and socket.client_state == WebSocketState.CONNECTED:
+        res = {
+            "success": True,
+            "data": {
+                "channel": "general",
+                "message": "Hello from the server!"
+            }
+        }
+        await socket.send_text(json.dumps(res))
+        await asyncio.sleep(n)
+
+@ws_router.websocket("/chat/{thread_id}")
+async def chat_ws(websocket: WebSocket, thread_id: str):
+    await websocket.accept()
+    # background_task = asyncio.create_task(repeat_every_n_seconds(3, websocket))
+    
+    try:
+        while True:
+            data = await websocket.receive_text()
+            data = json.loads(data)
+            message = data.get("message")
+            res = {
+                "success": True,
+                "data": {
+                    "channel": "general",
+                    "message": message
+                }
+                }
+            await websocket.send_text(json.dumps(res))
+    except Exception as e:
+        logger.error(f"Error in chat_ws: {e}")
+        background_task.cancel()

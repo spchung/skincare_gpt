@@ -4,18 +4,26 @@ from .memory.thread_context import ThreadContextStore
 from langchain_core.messages import HumanMessage, AIMessage
 from .handlers.basic_questioinaire import questionnaire_handler, is_questionnaire_complete
 from .models.state import State
+from app.context.manager import trim_messages
 from .handlers.chat_loop import chat_handler
+from langchain.chat_models import init_chat_model
+llm = init_chat_model("openai:gpt-4o-mini")
 
 ## temp - be replaced with redis
 thread_context_store = ThreadContextStore()
 
 # Initialize graph
 graph_builder = StateGraph(State)
-from langchain.chat_models import init_chat_model
-
-llm = init_chat_model("openai:gpt-4o-mini")
 
 ## utility nodes
+def init_node(state: State):
+    '''
+    This node is for anthing that needs to be done before the chat starts.
+    '''
+    return {
+        "messages": trim_messages(state['messages']),
+    }
+
 def call_question_router(state: State):
     if state['questionnaire_complete']:
         return {
@@ -77,9 +85,9 @@ async def process_chat_message_stream(messages: List[AIMessage|HumanMessage], se
     
     for event in graph.stream({
         "messages": messages, 
-        "session_id": session_id,
+        "thread_id": session_id,
         "questionnaire": questionnaire_form,
-        "current_field": None
+        "questionnaire_complete": is_questionnaire_complete(questionnaire_form),
     }):
         for value in event.values():
             if "messages" in value:
