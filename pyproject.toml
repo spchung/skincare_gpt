@@ -16,6 +16,8 @@ atomic-agents = "^1.1.2"
 langchain-community = "^0.3.24"
 ipython = "^9.2.0"
 logfire = "^3.16.0"
+langchain-qdrant = "^0.2.0"
+langchain = "^0.3.25"
 
 
 [build-system]

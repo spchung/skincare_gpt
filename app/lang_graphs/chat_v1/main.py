@@ -8,7 +8,8 @@ from .handlers.chat_loop import chat_handler
 from langchain.chat_models import init_chat_model
 from app.lang_graphs.chat_v1.handlers import (
     intent_classification_router, 
-    other_handler
+    other_handler,
+    product_search_handler
 )  
 
 llm = init_chat_model("openai:gpt-4o-mini")
@@ -37,6 +38,7 @@ graph_builder.add_node("questionnaire_handler", questionnaire_handler)
 graph_builder.add_node("intent_classification_router", intent_classification_router)
 graph_builder.add_node("chat_handler", chat_handler)
 graph_builder.add_node("other_handler", other_handler)
+graph_builder.add_node("product_search_handler", product_search_handler)
 ## todo
 # graph_builder.add_node("product_search_handler", chat_handler)
 # graph_builder.add_node("review_search_handler", chat_handler)
@@ -58,7 +60,7 @@ graph_builder.add_conditional_edges(
     "intent_classification_router",
         lambda state: state['intent'],
     {
-        "product_search": "chat_handler",
+        "product_search": "product_search_handler",
         "review_search": "chat_handler",
         "compare": "chat_handler",
         "filter_search": "chat_handler",
@@ -68,7 +70,7 @@ graph_builder.add_conditional_edges(
 graph_builder.add_edge("questionnaire_handler", END)
 graph_builder.add_edge("chat_handler", END)
 graph_builder.add_edge("other_handler", END)
-
+graph_builder.add_edge("product_search_handler", END)
 
 graph = graph_builder.compile()
 
