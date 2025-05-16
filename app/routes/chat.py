@@ -107,19 +107,19 @@ async def chat_ws(websocket: WebSocket, thread_id: str):
     await websocket.accept()
     # background_task = asyncio.create_task(repeat_every_n_seconds(3, websocket))
     
-    try:
-        while True:
-            data = await websocket.receive_text()
-            data = json.loads(data)
-            message = data.get("message")
-            res = {
-                "success": True,
-                "data": {
-                    "channel": "general",
-                    "message": message
-                }
-                }
-            await websocket.send_text(json.dumps(res))
-    except Exception as e:
-        logger.error(f"Error in chat_ws: {e}")
-        background_task.cancel()
+    # try:
+    #     while True:
+    #         data = await websocket.receive_text()
+    #         data = json.loads(data)
+    #         message = data.get("message")
+    #         res = {
+    #             "success": True,
+    #             "data": {
+    #                 "channel": "general",
+    #                 "message": message
+    #             }
+    #             }
+    #         await websocket.send_text(json.dumps(res))
+    # except Exception as e:
+    #     logger.error(f"Error in chat_ws: {e}")
+    #     background_task.cancel()

@@ -15,6 +15,7 @@ sentence-transformers = "^4.1.0"
 atomic-agents = "^1.1.2"
 langchain-community = "^0.3.24"
 ipython = "^9.2.0"
+logfire = "^3.16.0"
 
 
 [build-system]

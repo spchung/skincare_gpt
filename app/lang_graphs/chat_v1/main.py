@@ -4,11 +4,14 @@ from .memory.thread_context import ThreadContextStore
 from langchain_core.messages import HumanMessage, AIMessage
 from .handlers.basic_questioinaire import questionnaire_handler, is_questionnaire_complete
 from .models.state import State
-from app.context.manager import trim_messages
 from .handlers.chat_loop import chat_handler
 from langchain.chat_models import init_chat_model
-llm = init_chat_model("openai:gpt-4o-mini")
+from app.lang_graphs.chat_v1.handlers import (
+    intent_classification_router, 
+    other_handler
+)  
 
+llm = init_chat_model("openai:gpt-4o-mini")
 ## temp - be replaced with redis
 thread_context_store = ThreadContextStore()
 
@@ -16,57 +19,62 @@ thread_context_store = ThreadContextStore()
 graph_builder = StateGraph(State)
 
 ## utility nodes
-def init_node(state: State):
-    '''
-    This node is for anthing that needs to be done before the chat starts.
-    '''
-    return {
-        "messages": trim_messages(state['messages']),
-    }
-
-def call_question_router(state: State):
+def questionnaire_router(state: State):
     if state['questionnaire_complete']:
-        return {
-            "questionnaire_complete": True,
-        }
-    
-    questionnaire = state['questionnaire']
-    
-    return {
-        "questionnaire_complete": is_questionnaire_complete(questionnaire),
-        "questionnaire": questionnaire,
-    }
+        return { "questionnaire_complete": True}
+    return { "questionnaire_complete": is_questionnaire_complete(state['questionnaire']) }
 
 def decision_router(state: State):
     if state['questionnaire_complete']:
-        return "main_handler"
+        return "intent_classification_router"
     return "questionnaire_handler"
 
+
+
 # build graph
-graph_builder.add_node("call_question_router", call_question_router)
+graph_builder.add_node("questionnaire_router", questionnaire_router)
 graph_builder.add_node("questionnaire_handler", questionnaire_handler)
+graph_builder.add_node("intent_classification_router", intent_classification_router)
 graph_builder.add_node("chat_handler", chat_handler)
+graph_builder.add_node("other_handler", other_handler)
+## todo
+# graph_builder.add_node("product_search_handler", chat_handler)
+# graph_builder.add_node("review_search_handler", chat_handler)
+# graph_builder.add_node("compare_handler", chat_handler)
+# graph_builder.add_node("filter_search_handler", chat_handler)
 
-graph_builder.add_edge(START, "call_question_router")
-
+graph_builder.add_edge(START, "questionnaire_router")
 graph_builder.add_conditional_edges(
-    "call_question_router", 
+    "questionnaire_router", 
     decision_router,
     {
-        "chat_handler": "chat_handler",
+        "intent_classification_router": "intent_classification_router",
         "questionnaire_handler": "questionnaire_handler",
     }
 )
 
+# graph_builder.add_edge("questionnaire_handler", "intent_classification_router")
+graph_builder.add_conditional_edges(
+    "intent_classification_router",
+        lambda state: state['intent'],
+    {
+        "product_search": "chat_handler",
+        "review_search": "chat_handler",
+        "compare": "chat_handler",
+        "filter_search": "chat_handler",
+        "other": "other_handler",
+    }
+)
 graph_builder.add_edge("questionnaire_handler", END)
 graph_builder.add_edge("chat_handler", END)
+graph_builder.add_edge("other_handler", END)
+
+
 graph = graph_builder.compile()
 
 # Invocation
 def process_chat_message_sync(messages: List[AIMessage|HumanMessage], session_id: str):
-    
     questionnaire_form = thread_context_store.get_thread_context(session_id).questionnaire
-    
     res = graph.invoke({
         "messages": messages, 
         "thread_id": session_id,
@@ -78,11 +86,7 @@ def process_chat_message_sync(messages: List[AIMessage|HumanMessage], session_id
 
 # Streaming version
 async def process_chat_message_stream(messages: List[AIMessage|HumanMessage], session_id: str):
-    
-    thread_context_store.info()
-
     questionnaire_form = thread_context_store.get_thread_context(session_id).questionnaire
-    
     for event in graph.stream({
         "messages": messages, 
         "thread_id": session_id,

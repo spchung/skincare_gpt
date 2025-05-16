@@ -8,3 +8,4 @@ class State(TypedDict):
     thread_id: str
     questionnaire: BasicQuestionaireModel
     questionnaire_complete: bool
+    intent: str

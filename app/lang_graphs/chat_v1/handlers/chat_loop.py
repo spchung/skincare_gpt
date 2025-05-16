@@ -15,6 +15,7 @@ def init_message_handler(state: State):
     }
 
 def chat_handler(state: State):
+    intent = state['intent']
     return {
-        "messages": [AIMessage(content="You made it son!")],
+        "messages": [AIMessage(content=f"You made it son! {intent}")],
     }

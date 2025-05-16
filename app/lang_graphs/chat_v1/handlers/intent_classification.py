@@ -1,11 +1,9 @@
-from atomic_agents.agents.base_agent import BaseAgent, BaseAgentConfig, BaseIOSchema
-from atomic_agents.lib.components.system_prompt_generator import SystemPromptGenerator, SystemPromptContextProviderBase
 from pydantic import Field
 import instructor
-from openai import OpenAI
-
-llm = OpenAI()
-
+from atomic_agents.agents.base_agent import BaseAgent, BaseAgentConfig, BaseIOSchema
+from atomic_agents.lib.components.system_prompt_generator import SystemPromptGenerator, SystemPromptContextProviderBase
+from app.lang_graphs.chat_v1.models.state import State
+from app.internal.client import llm
 
 class IntentClassificationInputSchema(BaseIOSchema):
     """ IntentClassificationInputSchema """
@@ -48,4 +46,6 @@ worker = BaseAgent(
     ),
 )
 
-
+def intent_classification_router(state: State):
+    res = worker.run(IntentClassificationInputSchema(query=state['messages'][-1].content))
+    return { "intent": res.intent }
