@@ -11,6 +11,7 @@ import instructor
 from atomic_agents.agents.base_agent import BaseAgent, BaseAgentConfig, BaseIOSchema
 from atomic_agents.lib.components.system_prompt_generator import SystemPromptGenerator
 from app.internal.client import llm
+from app.lang_graphs.chat_v1.models.state import State
 
 class ProductSearchRAGInputSchema(BaseIOSchema):
     """ ProductSearchRAGInputSchema """
@@ -116,7 +117,13 @@ def create_product_search_graph():
 # Create the product search chain
 product_search_chain = create_product_search_graph()
 
-
-def product_search_handler(query: str) -> str:
-    res = product_search_chain.invoke({"query": query})
-    return res["messages"][-1].content
+def product_search_handler(state: State):
+    query = state["messages"][-1].content
+    res = product_search_chain.invoke({
+        "query": query,
+        "messages": state["messages"]
+    })
+    return {
+        "messages": [AIMessage(content=res["messages"][-1].content)],
+        "intent": "product_search"
+    }

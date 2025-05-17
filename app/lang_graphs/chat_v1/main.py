@@ -30,8 +30,6 @@ def decision_router(state: State):
         return "intent_classification_router"
     return "questionnaire_handler"
 
-
-
 # build graph
 graph_builder.add_node("questionnaire_router", questionnaire_router)
 graph_builder.add_node("questionnaire_handler", questionnaire_handler)
