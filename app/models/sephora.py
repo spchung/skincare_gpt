@@ -9,7 +9,7 @@ class Base(DeclarativeBase):
     pass
 
 # Pydantic Models
-class ProductBase(BaseModel):
+class SephoraProductViewModel(BaseModel):
     product_id: str
     product_name: str
     brand_id: int
@@ -25,7 +25,7 @@ class ProductBase(BaseModel):
     secondary_category: Optional[str] = None
     teritary_category: Optional[str] = None
 
-class ReviewBase(BaseModel):
+class SephoraReviewViewModel(BaseModel):
     review_id: str
     author_id: str
     rating: int
@@ -47,7 +47,7 @@ class ReviewBase(BaseModel):
     price_usd: float
 
 # SQLAlchemy Models
-class SephoraProduct(Base):
+class SephoraProductSQLModel(Base):
     __tablename__ = "sephora_product"
 
     product_id = Column(String, primary_key=True)
@@ -65,8 +65,8 @@ class SephoraProduct(Base):
     secondary_category = Column(String)
     teritary_category = Column(String)
 
-    def to_pydantic(self) -> ProductBase:
-        return ProductBase(
+    def to_pydantic(self) -> SephoraProductViewModel:
+        return SephoraProductViewModel(
             product_id=self.product_id,
             product_name=self.product_name,
             brand_id=self.brand_id,
@@ -83,7 +83,7 @@ class SephoraProduct(Base):
             teritary_category=self.teritary_category
         )
 
-class SephoraReview(Base):
+class SephoraReviewSQLModel(Base):
     __tablename__ = "sephora_review"
 
     review_id = Column(String, primary_key=True)
@@ -106,8 +106,8 @@ class SephoraReview(Base):
     brand_name = Column(String, nullable=False)
     price_usd = Column(Float, nullable=False)
 
-    def to_pydantic(self) -> ReviewBase:
-        return ReviewBase(
+    def to_pydantic(self) -> SephoraReviewViewModel:
+        return SephoraReviewViewModel(
             review_id=self.review_id,
             author_id=self.author_id,
             rating=self.rating,

@@ -1,22 +1,21 @@
+import instructor
+from pydantic import Field
+from typing import List, TypedDict, Annotated, Sequence
+from typing_extensions import TypedDict
 from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, END
-from typing import TypedDict, Annotated, Sequence
-from typing_extensions import TypedDict
-from app.semantic_search.products import product_search
-from typing import List
-from app.models.sephora import SephoraProduct, ProductBase
+from app.internal.client import llm
 from app.internal.postgres import get_db
-from pydantic import Field
-import instructor
+from app.lang_graphs.chat_v1.models.state import State
+from app.models.sephora import SephoraProductSQLModel, SephoraProductViewModel
+from app.semantic_search.products import product_search
 from atomic_agents.agents.base_agent import BaseAgent, BaseAgentConfig, BaseIOSchema
 from atomic_agents.lib.components.system_prompt_generator import SystemPromptGenerator
-from app.internal.client import llm
-from app.lang_graphs.chat_v1.models.state import State
 
 class ProductSearchRAGInputSchema(BaseIOSchema):
     """ ProductSearchRAGInputSchema """
     query: str = Field(None, description="The user's query.")
-    products: List[ProductBase] = Field(None, description="The products found in the semantic search.")
+    products: List[SephoraProductViewModel] = Field(None, description="The products found in the semantic search.")
 
 class ProductSearchRAGOutputSchema(BaseIOSchema):
     """ ProductSearchRAGOutputSchema """
@@ -59,7 +58,7 @@ class ProductSearchState(TypedDict):
     messages: Annotated[Sequence[HumanMessage | AIMessage], "The messages in the conversation"]
     query: Annotated[str, "The user's query"]
     product_ids: Annotated[List[str], "The products found in the semantic search"] | None
-    sql_products: Annotated[List[ProductBase], "The products found in the SQL search"] | None
+    sql_products: Annotated[List[SephoraProductViewModel], "The products found in the SQL search"] | None
 
 def search_products(state: ProductSearchState):
     # Get the query from the state
@@ -81,7 +80,7 @@ def get_sql_product(state: ProductSearchState):
         return state
     
     db = next(get_db())
-    sql_products = db.query(SephoraProduct).filter(SephoraProduct.product_id.in_(product_ids)).all()
+    sql_products = db.query(SephoraProductSQLModel).filter(SephoraProductSQLModel.product_id.in_(product_ids)).all()
     return {"sql_products": [product.to_pydantic() for product in sql_products]}
 
 def format_response(state: ProductSearchState):

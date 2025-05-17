@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import List
 from langgraph.graph import StateGraph, START, END
 from .memory.thread_context import ThreadContextStore
 from langchain_core.messages import HumanMessage, AIMessage
@@ -9,7 +9,8 @@ from langchain.chat_models import init_chat_model
 from app.lang_graphs.chat_v1.handlers import (
     intent_classification_router, 
     other_handler,
-    product_search_handler
+    product_search_handler,
+    review_search_handler
 )  
 
 llm = init_chat_model("openai:gpt-4o-mini")
@@ -37,9 +38,9 @@ graph_builder.add_node("intent_classification_router", intent_classification_rou
 graph_builder.add_node("chat_handler", chat_handler)
 graph_builder.add_node("other_handler", other_handler)
 graph_builder.add_node("product_search_handler", product_search_handler)
+graph_builder.add_node("review_search_handler", review_search_handler)
+
 ## todo
-# graph_builder.add_node("product_search_handler", chat_handler)
-# graph_builder.add_node("review_search_handler", chat_handler)
 # graph_builder.add_node("compare_handler", chat_handler)
 # graph_builder.add_node("filter_search_handler", chat_handler)
 
@@ -59,7 +60,7 @@ graph_builder.add_conditional_edges(
         lambda state: state['intent'],
     {
         "product_search": "product_search_handler",
-        "review_search": "chat_handler",
+        "review_search": "review_search_handler",
         "compare": "chat_handler",
         "filter_search": "chat_handler",
         "other": "other_handler",
@@ -69,7 +70,7 @@ graph_builder.add_edge("questionnaire_handler", END)
 graph_builder.add_edge("chat_handler", END)
 graph_builder.add_edge("other_handler", END)
 graph_builder.add_edge("product_search_handler", END)
-
+graph_builder.add_edge("review_search_handler", END)
 graph = graph_builder.compile()
 
 # Invocation
@@ -79,7 +80,8 @@ def process_chat_message_sync(messages: List[AIMessage|HumanMessage], session_id
         "messages": messages, 
         "thread_id": session_id,
         "questionnaire": questionnaire_form,
-        "questionnaire_complete": is_questionnaire_complete(questionnaire_form),
+        "questionnaire_complete": True, ## skip for testing
+        # "questionnaire_complete": is_questionnaire_complete(questionnaire_form),
     })
 
     return res["messages"][-1]
@@ -91,7 +93,8 @@ async def process_chat_message_stream(messages: List[AIMessage|HumanMessage], se
         "messages": messages, 
         "thread_id": session_id,
         "questionnaire": questionnaire_form,
-        "questionnaire_complete": is_questionnaire_complete(questionnaire_form),
+        "questionnaire_complete": True, ## skip for testing
+        # "questionnaire_complete": is_questionnaire_complete(questionnaire_form),
     }):
         for value in event.values():
             if "messages" in value:

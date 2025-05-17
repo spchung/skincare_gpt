@@ -3,14 +3,12 @@ from app.lang_graphs.chat_v1.main import process_chat_message_sync, process_chat
 from langchain_core.messages import HumanMessage
 from typing import List
 from app.lang_graphs.chat_v1.handlers.intents.product_search import product_search_chain
+from app.semantic_search.reviews import review_search
 
 router = APIRouter()
 
 @router.post("/test")
 async def test_endpoint(message: str):
-    try:
-        response = product_search_chain.invoke(message)
-        
-        return {"response": response}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    response = review_search(message)
+    return {"response": response}
+
