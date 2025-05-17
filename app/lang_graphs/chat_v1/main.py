@@ -10,7 +10,8 @@ from app.lang_graphs.chat_v1.handlers import (
     intent_classification_router, 
     other_handler,
     product_search_handler,
-    review_search_handler
+    review_search_handler,
+    filtered_search_handler
 )  
 
 llm = init_chat_model("openai:gpt-4o-mini")
@@ -39,6 +40,7 @@ graph_builder.add_node("chat_handler", chat_handler)
 graph_builder.add_node("other_handler", other_handler)
 graph_builder.add_node("product_search_handler", product_search_handler)
 graph_builder.add_node("review_search_handler", review_search_handler)
+graph_builder.add_node("filtered_search_handler", filtered_search_handler)
 
 ## todo
 # graph_builder.add_node("compare_handler", chat_handler)
@@ -62,7 +64,7 @@ graph_builder.add_conditional_edges(
         "product_search": "product_search_handler",
         "review_search": "review_search_handler",
         "compare": "chat_handler",
-        "filter_search": "chat_handler",
+        "filter_search": "filtered_search_handler",
         "other": "other_handler",
     }
 )
@@ -71,6 +73,7 @@ graph_builder.add_edge("chat_handler", END)
 graph_builder.add_edge("other_handler", END)
 graph_builder.add_edge("product_search_handler", END)
 graph_builder.add_edge("review_search_handler", END)
+graph_builder.add_edge("filtered_search_handler", END)
 graph = graph_builder.compile()
 
 # Invocation
