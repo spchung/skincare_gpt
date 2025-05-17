@@ -7,11 +7,11 @@ from app.internal.client import llm
 
 class IntentClassificationInputSchema(BaseIOSchema):
     """ IntentClassificationInputSchema """
-    query: str = Field(None, description="The user's query.")
+    query: str = Field(..., description="The user's query.")
 
 class IntentClassificationOutputSchema(BaseIOSchema):
     """ IntentClassificationOutputSchema """
-    intent: str =Field(None, description="The intent of the user's query.")
+    intent: str =Field(..., description="The intent of the user's query.")
 
 prompt = SystemPromptGenerator(
     background=[

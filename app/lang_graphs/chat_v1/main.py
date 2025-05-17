@@ -84,7 +84,6 @@ def process_chat_message_sync(messages: List[AIMessage|HumanMessage], session_id
         "thread_id": session_id,
         "questionnaire": questionnaire_form,
         "questionnaire_complete": True, ## skip for testing
-        # "questionnaire_complete": is_questionnaire_complete(questionnaire_form),
     })
 
     return res["messages"][-1]
@@ -97,7 +96,6 @@ async def process_chat_message_stream(messages: List[AIMessage|HumanMessage], se
         "thread_id": session_id,
         "questionnaire": questionnaire_form,
         "questionnaire_complete": True, ## skip for testing
-        # "questionnaire_complete": is_questionnaire_complete(questionnaire_form),
     }):
         for value in event.values():
             if "messages" in value:
