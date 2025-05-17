@@ -92,7 +92,6 @@ def format_response(state: ProductSearchState):
     
     return {"messages": [AIMessage(content=rag_response.response)]}
 
-
 def create_product_search_graph():
     # Create the graph
     workflow = StateGraph(ProductSearchState)

@@ -25,7 +25,7 @@ prompt = SystemPromptGenerator(
         '- product_search: when the user is looking for a skincare product for a condition or need.',
         '- review_search: when the user wants to know opinions or reviews about a product.',
         '- compare: when the user wants a comparison between two or more products.',
-        '- filter_search: when the user includes constraints such as price, ingredient, or SPF.',
+        '- filter_search: when the user includes constraints such as brand, purpose, price, ingredient, or SPF',
         '- other: if the query doesn’t fit any of the above.',
         'Return only the label that best matches the user’s intent.'
     ],

@@ -1,23 +1,16 @@
-'''
-Other intent shoudld be handled with suggested questions to ask the user.
-'''
-from pydantic import Field
-from app.internal.client import llm
-import instructor
 from atomic_agents.agents.base_agent import BaseAgent, BaseAgentConfig, BaseIOSchema
 from atomic_agents.lib.components.system_prompt_generator import SystemPromptGenerator, SystemPromptContextProviderBase
-from app.lang_graphs.chat_v1.models.state import State
-from langchain_core.messages import AIMessage
+from pydantic import Field  
+from app.internal.client import llm
+import instructor
 
-
-class OtherIntentInputSchema(BaseIOSchema):
-    """ OtherIntentInputSchema """
+class UnknownIntentInputSchema(BaseIOSchema):
+    """ UnknownIntentInputSchema """
     query: str = Field(None, description="The user's query.")
 
-class OtherIntentOutputSchema(BaseIOSchema):
-    """ OtherIntentOutputSchema """
+class UnknownIntentOutputSchema(BaseIOSchema):
+    """ UnknownIntentOutputSchema """
     response: str = Field(None, description="The response to the user's query.")
-
 
 prompt = SystemPromptGenerator(
     background=[
@@ -44,14 +37,8 @@ worker = BaseAgent(
         client=instructor.from_openai(llm),
         model='gpt-4o-mini',
         temperature=0,
-        input_schema=OtherIntentInputSchema,
-        output_schema=OtherIntentOutputSchema,
+        input_schema=UnknownIntentInputSchema,
+        output_schema=UnknownIntentOutputSchema,
         system_prompt_generator=prompt,
     ),
 )
-
-def other_handler(state: State):
-    res = worker.run(OtherIntentInputSchema(query=state['messages'][-1].content))
-    return {
-        "messages": [AIMessage(content=res.response)],
-    }

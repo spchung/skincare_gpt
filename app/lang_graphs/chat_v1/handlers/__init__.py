@@ -1,4 +1,4 @@
-from .intents.other import other_handler
+from .intents.other.other import other_handler
 from .intent_classification import intent_classification_router
 from .intents.product_search import product_search_handler
 from .intents.review_search import review_search_handler
