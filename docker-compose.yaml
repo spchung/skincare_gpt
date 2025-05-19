@@ -47,7 +47,16 @@ services:
         target: /qdrant/config/production.yaml
     volumes:
       - /Users/stephen/Nottingham/portfolio/qdrant_data:/qdrant/storage
-    
+  
+  skincare_gpt:
+    build:
+      context: .
+      dockerfile: dockerfile
+    ports:
+      - "8501:8501"
+    env_file:
+      - .docker.env
+
 configs:
   qdrant_config:
     content: |
