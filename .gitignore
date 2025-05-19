@@ -1,5 +1,6 @@
 # Environment variables
 .env
+.streamlit
 
 /lang_scripts
 # Python

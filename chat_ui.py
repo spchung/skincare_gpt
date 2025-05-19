@@ -1,9 +1,13 @@
 from openai import OpenAI
 import streamlit as st
 import os
+import torch
 from dotenv import load_dotenv
 load_dotenv()
-openai_api_key = os.getenv("OPENAI_API_KEY")
+
+torch.classes.__path__ = [] # to avoid streamlit error message
+
+
 from app.lang_graphs.chat_v1.main import process_chat_message_sync, process_chat_message_stream
 from langchain_core.messages import HumanMessage, AIMessage
 
@@ -14,11 +18,11 @@ with st.sidebar:
     "[View the source code](https://github.com/streamlit/llm-examples/blob/main/Chatbot.py)"
     "[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/streamlit/llm-examples?quickstart=1)"
 
-st.title("💬 Skincart GPT")
+st.title("💬 Skincare GPT")
 st.caption("🚀 Your personalized skincare assistant")
 
 if "messages" not in st.session_state:
-    st.session_state["messages"] = [AIMessage(content="Hello! ")]
+    st.session_state["messages"] = [AIMessage(content="Hello! Welcome to Skincare GPT. I'm here to help you with your skincare questions and concerns. How can I help you today?")]
 
 for msg in st.session_state.messages:
     if isinstance(msg, HumanMessage):
@@ -27,9 +31,6 @@ for msg in st.session_state.messages:
         st.chat_message("assistant").write(msg.content)
 
 if prompt := st.chat_input():
-    if not openai_api_key:
-        st.info("Please add your OpenAI API key to continue.")
-        st.stop()
 
     user_msg = HumanMessage(content=prompt)
     st.session_state.messages.append(user_msg)
