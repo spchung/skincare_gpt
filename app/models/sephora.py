@@ -8,6 +8,17 @@ from datetime import datetime
 class Base(DeclarativeBase):
     pass
 
+# redis entities
+class SephoraProductRedisModel(BaseModel):
+    type: str = 'product'
+    product_id: str
+    product_name: str
+
+class SephoraReviewRedisModel(BaseModel):
+    type: str = 'review'
+    review_id: str
+    review_text: str
+
 # Pydantic Models
 class SephoraProductViewModel(BaseModel):
     product_id: str

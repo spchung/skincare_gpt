@@ -2,11 +2,8 @@ services:
   postgres:
     container_name: postgres
     image: postgres:15-alpine
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgrespassword}
-      POSTGRES_DB: ${POSTGRES_DB:-portfolio}
-      PGDATA: /data/postgres
+    env_file:
+      - .docker.env
     volumes:
       - /Users/stephen/Nottingham/portfolio/volumes/postgres:/data/postgres
     ports:

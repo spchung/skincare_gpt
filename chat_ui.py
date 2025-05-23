@@ -7,7 +7,6 @@ load_dotenv()
 
 torch.classes.__path__ = [] # to avoid streamlit error message
 
-
 from app.lang_graphs.chat_v1.main import process_chat_message_sync, process_chat_message_stream
 from langchain_core.messages import HumanMessage, AIMessage
 

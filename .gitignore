@@ -1,5 +1,11 @@
 # Environment variables
 *.env
+.secrets.*
+
+# fly.io 
+.github/workflows/fly-deploy.yml
+.dockerignore
+fly.toml
 
 .streamlit
 

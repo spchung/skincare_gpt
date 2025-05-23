@@ -10,7 +10,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
@@ -20,11 +20,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && ln -s /root/.local/bin/poetry /usr/local/bin/poetry \
     && rm -rf /var/lib/apt/lists/*
 
-
-# Copy Poetry files
+# install packages
 COPY pyproject.toml poetry.lock* /app/
-
-# Install Python dependencies
 RUN poetry install --no-interaction --no-ansi
 
 # Copy the rest of the code
