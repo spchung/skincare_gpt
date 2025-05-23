@@ -1,14 +1,14 @@
 from sqlalchemy.orm import Session
 from typing import List, Any, Type
 import logging
-import json
 from app.internal.redis import RedisClient
 from app.models.sephora import SephoraReviewRedisModel, SephoraProductRedisModel
 
-class TrackedSession:
-    def __init__(self, session: Session, thread_id: str):
+class EntityTrackingSession:
+    def __init__(self, session: Session, thread_id: str, entities_limit: int = 8):
         self.redis_client = RedisClient()
         self.redis_key = f"entities:{thread_id}"
+        self.entities_limit = entities_limit
         self._session = session
         self.retrieved_items = []
         self.logger = logging.getLogger(__name__)
@@ -23,7 +23,6 @@ class TrackedSession:
         ## items
         self.retrieved_items.extend(items if isinstance(items, list) else [items])
         self.set_itmes_in_redis()
-
 
     def set_itmes_in_redis(self):
         """
@@ -50,6 +49,8 @@ class TrackedSession:
             record = self.redis_client.get(self.redis_key)
             if record:
                 record.extend(json_payload)
+                if len(record) > self.entities_limit:
+                    record = record[-self.entities_limit:]
                 self.redis_client.setex(self.redis_key, record, 86400)
 
     def __getattr__(self, name):
@@ -57,7 +58,7 @@ class TrackedSession:
         return getattr(self._session, name)
 
 class TrackedQuery:
-    def __init__(self, query, tracked_session: TrackedSession, model_class: Type):
+    def __init__(self, query, tracked_session: EntityTrackingSession, model_class: Type):
         self._query = query
         self._tracked_session = tracked_session
         self._model_class = model_class

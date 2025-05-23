@@ -13,6 +13,10 @@ class SephoraProductRedisModel(BaseModel):
     type: str = 'product'
     product_id: str
     product_name: str
+    brand_name: str
+    rating: Optional[float] = None
+    ingredients: Optional[List[Any]] = None
+    price_usd: float
 
 class SephoraReviewRedisModel(BaseModel):
     type: str = 'review'

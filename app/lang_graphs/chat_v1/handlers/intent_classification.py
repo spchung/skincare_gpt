@@ -48,4 +48,5 @@ worker = BaseAgent(
 
 def intent_classification_router(state: State):
     res = worker.run(IntentClassificationInputSchema(query=state['messages'][-1].content))
+    print(f"INTENT: {res}")
     return { "intent": res.intent }

@@ -42,10 +42,6 @@ graph_builder.add_node("product_search_handler", product_search_handler)
 graph_builder.add_node("review_search_handler", review_search_handler)
 graph_builder.add_node("filtered_search_handler", filtered_search_handler)
 
-## todo
-# graph_builder.add_node("compare_handler", chat_handler)
-# graph_builder.add_node("filter_search_handler", chat_handler)
-
 graph_builder.add_edge(START, "questionnaire_router")
 graph_builder.add_conditional_edges(
     "questionnaire_router", 
@@ -59,7 +55,7 @@ graph_builder.add_conditional_edges(
 # graph_builder.add_edge("questionnaire_handler", "intent_classification_router")
 graph_builder.add_conditional_edges(
     "intent_classification_router",
-        lambda state: state['intent'],
+    lambda state: state['intent'],
     {
         "product_search": "product_search_handler",
         "review_search": "review_search_handler",

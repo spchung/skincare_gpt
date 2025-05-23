@@ -9,6 +9,7 @@ from app.internal.postgres import get_db
 from app.lang_graphs.chat_v1.models.state import State
 from app.models.sephora import SephoraProductSQLModel, SephoraProductViewModel
 from app.semantic_search.products import product_search
+from app.memory.postgres_memory import EntityTrackingSession
 from atomic_agents.agents.base_agent import BaseAgent, BaseAgentConfig, BaseIOSchema
 from atomic_agents.lib.components.system_prompt_generator import SystemPromptGenerator
 
@@ -59,6 +60,7 @@ class ProductSearchState(TypedDict):
     query: Annotated[str, "The user's query"]
     product_ids: Annotated[List[str], "The products found in the semantic search"] | None
     sql_products: Annotated[List[SephoraProductViewModel], "The products found in the SQL search"] | None
+    thread_id: Annotated[str, "The thread ID of the current conversation"]
 
 def search_products(state: ProductSearchState):
     # Get the query from the state
@@ -76,10 +78,12 @@ def search_products(state: ProductSearchState):
 
 def get_sql_product(state: ProductSearchState):
     product_ids = state["product_ids"]
+    thread_id = state["thread_id"]
+    
     if product_ids is None:
         return state
     
-    db = next(get_db())
+    db = EntityTrackingSession(next(get_db()), thread_id)
     sql_products = db.query(SephoraProductSQLModel).filter(SephoraProductSQLModel.product_id.in_(product_ids)).all()
     return {"sql_products": [product.to_pydantic() for product in sql_products]}
 
@@ -89,7 +93,6 @@ def format_response(state: ProductSearchState):
         return {"messages": [AIMessage(content=f"No products found for your query.")]}
     
     rag_response = worker.run(ProductSearchRAGInputSchema(query=state["query"], products=sql_products))
-    
     return {"messages": [AIMessage(content=rag_response.response)]}
 
 def create_product_search_graph():
@@ -117,9 +120,12 @@ product_search_chain = create_product_search_graph()
 
 def product_search_handler(state: State):
     query = state["messages"][-1].content
+    thread_id = state["thread_id"]
+    
     res = product_search_chain.invoke({
         "query": query,
-        "messages": state["messages"]
+        "messages": state["messages"],
+        "thread_id": thread_id
     })
     return {
         "messages": [AIMessage(content=res["messages"][-1].content)],

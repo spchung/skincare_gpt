@@ -33,4 +33,3 @@ class RedisClient():
     def setex(self, key: str, value: Any, timeout: int) -> bool:
         value = json.dumps(value)
         return self.client.setex(key, timeout, value)
-    
