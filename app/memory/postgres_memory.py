@@ -57,6 +57,25 @@ class EntityTrackingSession:
         # Delegate other session methods to the underlying session
         return getattr(self._session, name)
 
+    ## context manager protocol
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_value, traceback):
+        try:
+            if exc_type is None:
+                self._session.commit()
+            else:
+                self._session.rollback()    
+        except Exception as e:
+            self.logger.error(f"Error during session handling: {e}")
+        finally:
+            self._session.close()
+            # Clear retrieved items after session ends
+            self.retrieved_items.clear()
+            # Optionally, clear the Redis key
+            self.redis_client.delete(self.redis_key)
+        
 class TrackedQuery:
     def __init__(self, query, tracked_session: EntityTrackingSession, model_class: Type):
         self._query = query

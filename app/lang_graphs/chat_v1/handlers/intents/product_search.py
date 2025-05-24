@@ -83,9 +83,9 @@ def get_sql_product(state: ProductSearchState):
     if product_ids is None:
         return state
     
-    db = EntityTrackingSession(next(get_db()), thread_id)
-    sql_products = db.query(SephoraProductSQLModel).filter(SephoraProductSQLModel.product_id.in_(product_ids)).all()
-    return {"sql_products": [product.to_pydantic() for product in sql_products]}
+    with EntityTrackingSession(next(get_db()), thread_id) as db:
+        sql_products = db.query(SephoraProductSQLModel).filter(SephoraProductSQLModel.product_id.in_(product_ids)).all()
+        return {"sql_products": [product.to_pydantic() for product in sql_products]}
 
 def format_response(state: ProductSearchState):
     sql_products = state["sql_products"]

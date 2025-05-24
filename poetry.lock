@@ -773,6 +773,23 @@ protobuf = ">=3.20.2,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4
 grpc = ["grpcio (>=1.44.0,<2.0.0)"]
 
 [[package]]
+name = "grandalf"
+version = "0.8"
+description = "Graph and drawing algorithms framework"
+optional = false
+python-versions = "*"
+files = [
+    {file = "grandalf-0.8-py3-none-any.whl", hash = "sha256:793ca254442f4a79252ea9ff1ab998e852c1e071b863593e5383afee906b4185"},
+    {file = "grandalf-0.8.tar.gz", hash = "sha256:2813f7aab87f0d20f334a3162ccfbcbf085977134a17a5b516940a93a77ea974"},
+]
+
+[package.dependencies]
+pyparsing = "*"
+
+[package.extras]
+full = ["numpy", "ply"]
+
+[[package]]
 name = "greenlet"
 version = "3.2.2"
 description = "Lightweight in-process concurrent programming"
@@ -3258,6 +3275,20 @@ files = [
 windows-terminal = ["colorama (>=0.4.6)"]
 
 [[package]]
+name = "pyparsing"
+version = "3.2.3"
+description = "pyparsing module - Classes and methods to define and execute parsing grammars"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "pyparsing-3.2.3-py3-none-any.whl", hash = "sha256:a749938e02d6fd0b59b356ca504a24982314bb090c383e3cf201c95ef7e2bfcf"},
+    {file = "pyparsing-3.2.3.tar.gz", hash = "sha256:b9c13f1ab8b3b542f72e28f634bad4de758ab3ce4546e4301970ad6fa77c38be"},
+]
+
+[package.extras]
+diagrams = ["jinja2", "railroad-diagrams"]
+
+[[package]]
 name = "python-dateutil"
 version = "2.9.0.post0"
 description = "Extensions to the standard Python datetime module"
@@ -5166,4 +5197,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.13"
-content-hash = "82e3953a26354989a314e90ded222e3f60e8a04696b18323fb729a98d7423c01"
+content-hash = "687d754b4a288a8b0b854f2c04613c587347f1c095327f26dc78e1cc12331489"
