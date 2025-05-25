@@ -4,7 +4,7 @@ Other intent shoudld be handled with suggested questions to ask the user.
 from pydantic import Field
 from app.internal.client import llm
 import instructor
-from app.lang_graphs.chat_v1.models.state import State
+from app.lang_graphs.chat_v1.graph_state import MainGraphState
 from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.graph import StateGraph, END
 from typing import Annotated, Sequence, TypedDict
@@ -61,7 +61,7 @@ def create_other_graph():
 # Create the other intent chain
 other_chain = create_other_graph()
 
-def other_handler(state: State):
+def other_handler(state: MainGraphState):
     query = state["messages"][-1].content
     res = other_chain.invoke({ 
         "query": query,

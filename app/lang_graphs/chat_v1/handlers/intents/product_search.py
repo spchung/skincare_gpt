@@ -6,7 +6,7 @@ from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, END
 from app.internal.client import llm
 from app.internal.postgres import get_db
-from app.lang_graphs.chat_v1.models.state import State
+from app.lang_graphs.chat_v1.graph_state import MainGraphState
 from app.models.sephora import SephoraProductSQLModel, SephoraProductViewModel
 from app.semantic_search.products import product_search
 from app.memory.postgres_memory import EntityTrackingSession
@@ -118,7 +118,7 @@ def create_product_search_graph():
 # Create the product search chain
 product_search_chain = create_product_search_graph()
 
-def product_search_handler(state: State):
+def product_search_handler(state: MainGraphState):
     query = state["messages"][-1].content
     thread_id = state["thread_id"]
     

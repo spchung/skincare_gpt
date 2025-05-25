@@ -3,7 +3,7 @@ from langgraph.graph import StateGraph, START, END
 from .memory.thread_context import ThreadContextStore
 from langchain_core.messages import HumanMessage, AIMessage
 from .handlers.basic_questioinaire import questionnaire_handler, is_questionnaire_complete
-from .models.state import State
+from app.lang_graphs.chat_v1.graph_state import MainGraphState
 from .handlers.chat_loop import chat_handler
 from langchain.chat_models import init_chat_model
 from app.lang_graphs.chat_v1.handlers import (
@@ -19,15 +19,15 @@ llm = init_chat_model("openai:gpt-4o-mini")
 thread_context_store = ThreadContextStore()
 
 # Initialize graph
-graph_builder = StateGraph(State)
+graph_builder = StateGraph(MainGraphState)
 
 ## utility nodes
-def questionnaire_router(state: State):
+def questionnaire_router(state: MainGraphState):
     if state['questionnaire_complete']:
         return { "questionnaire_complete": True}
     return { "questionnaire_complete": is_questionnaire_complete(state['questionnaire']) }
 
-def follow_up_handler(state: State):
+def follow_up_handler(state: MainGraphState):
     print("Follow-up handler invoked")
     return state
 

@@ -1,7 +1,7 @@
 from typing import Optional, Tuple
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, AIMessage
-from app.lang_graphs.chat_v1.models.state import State
+from app.lang_graphs.chat_v1.graph_state import MainGraphState
 from app.lang_graphs.chat_v1.memory.thread_context import get_context_store
 from app.lang_graphs.chat_v1.models.basic_questioinaire import (
     BasicQuestionaireModel,
@@ -85,7 +85,7 @@ def answer_field(current_form: BasicQuestionaireModel, field: str, user_answer: 
         return current_form
 
 ## Handler Node
-def questionnaire_handler(state: State):
+def questionnaire_handler(state: MainGraphState):
     thread_context_store = get_context_store()
 
     """Process the questionnaire state and determine next action"""

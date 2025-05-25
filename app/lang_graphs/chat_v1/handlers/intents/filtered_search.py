@@ -6,7 +6,7 @@ from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, END
 from app.internal.client import llm
 from app.internal.postgres import get_db
-from app.lang_graphs.chat_v1.models.state import State
+from app.lang_graphs.chat_v1.graph_state import MainGraphState
 from app.models.sephora import SephoraProductSQLModel, SephoraProductViewModel
 from app.semantic_search.products import product_filtered_search
 from atomic_agents.agents.base_agent import BaseAgent, BaseAgentConfig, BaseIOSchema
@@ -132,7 +132,7 @@ def create_filtered_search_graph():
 # Create the filtered search chain
 filtered_search_chain = create_filtered_search_graph()
 
-def filtered_search_handler(state: State):
+def filtered_search_handler(state: MainGraphState):
     query = state["messages"][-1].content
     res = filtered_search_chain.invoke({
         "query": query,

@@ -6,7 +6,7 @@ from typing_extensions import TypedDict
 from app.semantic_search import review_search
 from app.models.sephora import SephoraProductSQLModel, SephoraProductViewModel, SephoraReviewSQLModel, SephoraReviewViewModel
 from app.internal.postgres import get_db
-from app.lang_graphs.chat_v1.models.state import State
+from app.lang_graphs.chat_v1.graph_state import MainGraphState
 from app.models import QReview
 from app.memory.postgres_memory import EntityTrackingSession
 from app.lang_graphs.chat_v1.handlers.intents.review_search. \
@@ -241,7 +241,7 @@ def create_review_search_graph():
 # Create the review search chain
 review_search_chain = create_review_search_graph()
 
-def review_search_handler(state: State):
+def review_search_handler(state: MainGraphState):
     query = state["messages"][-1].content
     res = review_search_chain.invoke({
         "thread_id": state["thread_id"],

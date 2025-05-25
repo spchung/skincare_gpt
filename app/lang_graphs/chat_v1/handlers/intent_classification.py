@@ -2,7 +2,7 @@ from pydantic import Field
 import instructor
 from atomic_agents.agents.base_agent import BaseAgent, BaseAgentConfig, BaseIOSchema
 from atomic_agents.lib.components.system_prompt_generator import SystemPromptGenerator, SystemPromptContextProviderBase
-from app.lang_graphs.chat_v1.models.state import State
+from app.lang_graphs.chat_v1.graph_state import MainGraphState
 from app.internal.client import llm
 from typing import Optional
 from langchain_core.messages import HumanMessage
@@ -53,7 +53,7 @@ worker = BaseAgent(
     ),
 )
 
-def intent_classification_router(state: State):
+def intent_classification_router(state: MainGraphState):
     user_messages = [msg for msg in state['messages'] if isinstance(msg, HumanMessage)]
     query = user_messages[-1]
     previous_query = user_messages[-2] if len(user_messages) > 1 else None
