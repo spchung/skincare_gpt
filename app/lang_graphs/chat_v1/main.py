@@ -11,7 +11,8 @@ from app.lang_graphs.chat_v1.handlers import (
     other_handler,
     product_search_handler,
     review_search_handler,
-    filtered_search_handler
+    filtered_search_handler,
+    follow_up_question_handler
 )  
 
 llm = init_chat_model("openai:gpt-4o-mini")
@@ -27,9 +28,9 @@ def questionnaire_router(state: MainGraphState):
         return { "questionnaire_complete": True}
     return { "questionnaire_complete": is_questionnaire_complete(state['questionnaire']) }
 
-def follow_up_handler(state: MainGraphState):
-    print("Follow-up handler invoked")
-    return state
+# def follow_up_handler(state: MainGraphState):
+#     res = follow_up_question_handler(state)
+#     return state
 
 # build graph
 graph_builder.add_node("questionnaire_router", questionnaire_router)
@@ -40,7 +41,7 @@ graph_builder.add_node("other_handler", other_handler)
 graph_builder.add_node("product_search_handler", product_search_handler)
 graph_builder.add_node("review_search_handler", review_search_handler)
 graph_builder.add_node("filtered_search_handler", filtered_search_handler)
-graph_builder.add_node("follow_up_handler", follow_up_handler)
+graph_builder.add_node("follow_up_handler", follow_up_question_handler)
 
 graph_builder.add_edge(START, "questionnaire_router")
 graph_builder.add_conditional_edges(
@@ -61,7 +62,7 @@ graph_builder.add_conditional_edges(
         "review_search": "review_search_handler",
         "filter_search": "filtered_search_handler",
         "other": "other_handler",
-        'follow-up': "follow_up_handler",  # Assuming follow-up_handler is defined elsewhere
+        'follow_up': "follow_up_handler",  # Assuming follow-up_handler is defined elsewhere
     }
 )
 graph_builder.add_edge("questionnaire_handler", END)

@@ -2,13 +2,13 @@ from pydantic import BaseModel, Field
 
 class QProduct(BaseModel):
     product_id: str
-    price_usd: float
-    size: str
+    price_usd: float | None
+    size: str | None
     primary_category: str
-    secondary_category: str
-    tertiary_category: str
-    rating: float
-    reviews: int
+    secondary_category: str | None
+    tertiary_category: str | None
+    rating: float | None
+    reviews: int | None
     brand_name: str
     entity_type: str
     vector_column: str

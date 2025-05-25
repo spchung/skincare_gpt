@@ -84,8 +84,10 @@ follow_up_query_pairs = [
     ("List top 5 exfoliators for dry skin.", "Can you sort them by price?"),
     ("Recommend a good cleanser for acne-prone skin.", "Does Neutrogena have one like that?"),
     ("What’s a good body lotion for winter?", "Does it work for eczema too?"),
-    ("Are there any night creams for anti-aging?", "Is retinol included in those?")
+    ("Are there any night creams for anti-aging?", "Is retinol included in those?"),
+    ("What are the best sunscreens for oily skin?", "and which one is the cheapest")
 ]
+
 @pytest.mark.parametrize("previous_query, query", follow_up_query_pairs)
 def test_follow_up_intent(previous_query, query):
     res = intent_classification_worker.run(IntentClassificationInputSchema(

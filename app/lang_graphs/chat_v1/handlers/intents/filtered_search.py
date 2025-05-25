@@ -13,6 +13,7 @@ from atomic_agents.agents.base_agent import BaseAgent, BaseAgentConfig, BaseIOSc
 from atomic_agents.lib.components.system_prompt_generator import SystemPromptGenerator
 from app.lang_graphs.chat_v1.models.filtered_search import ProductSearchFilter
 from app.lang_graphs.chat_v1.handlers.intents.product_search import ProductSearchRAGInputSchema, worker as product_rag_output_worker
+from app.memory.postgres_memory import EntityTrackingSession
 
 class FilterExtractInputSchema(BaseIOSchema):
     """ FilterExtractInputSchema """
@@ -64,6 +65,7 @@ extract_filters_worker = BaseAgent(
 
 # Graph
 class FilteredSearchState(TypedDict):
+    thread_id: Annotated[str, "The unique identifier for the conversation thread"]
     messages: Annotated[Sequence[HumanMessage | AIMessage], "The messages in the conversation"]
     query: Annotated[str, "The user's query"]
     filters: Annotated[List[ProductSearchFilter], "The extracted filters from the query"] | None
@@ -90,12 +92,13 @@ def search_products(state: FilteredSearchState):
 
 def get_sql_product(state: FilteredSearchState):
     product_ids = state["product_ids"]
+    thread_id = state["thread_id"]
     if product_ids is None:
         return state
     
-    db = next(get_db())
-    sql_products = db.query(SephoraProductSQLModel).filter(SephoraProductSQLModel.product_id.in_(product_ids)).all()
-    return {"sql_products": [product.to_pydantic() for product in sql_products]}
+    with EntityTrackingSession(next(get_db()), thread_id) as db:
+        sql_products = db.query(SephoraProductSQLModel).filter(SephoraProductSQLModel.product_id.in_(product_ids)).all()
+        return {"sql_products": [product.to_pydantic() for product in sql_products]}
 
 def format_response(state: FilteredSearchState):
     sql_products = state["sql_products"]
@@ -134,6 +137,7 @@ filtered_search_chain = create_filtered_search_graph()
 def filtered_search_handler(state: MainGraphState):
     query = state["messages"][-1].content
     res = filtered_search_chain.invoke({
+        'thread_id': state["thread_id"],
         "query": query,
         "messages": state["messages"]
     })

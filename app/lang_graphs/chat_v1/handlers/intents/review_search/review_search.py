@@ -95,7 +95,6 @@ def get_sql_reviews(state: ReviewSearchState):
     if q_reviews is None:
         return state
     
-    # db = next(get_db())
     with EntityTrackingSession(next(get_db()), thread_id) as db:
     
         # products

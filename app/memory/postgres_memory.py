@@ -74,7 +74,7 @@ class EntityTrackingSession:
             # Clear retrieved items after session ends
             self.retrieved_items.clear()
             # Optionally, clear the Redis key
-            self.redis_client.delete(self.redis_key)
+            # self.redis_client.delete(self.redis_key)
         
 class TrackedQuery:
     def __init__(self, query, tracked_session: EntityTrackingSession, model_class: Type):

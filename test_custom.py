@@ -1,53 +1,20 @@
 from pprint import pprint
-from app.lang_graphs.chat_v1.handlers.intents.review_search.review_search import review_search_chain
-from app.lang_graphs.chat_v1.handlers.intent_classification import (
-    worker as intent_classification_worker,
-    IntentClassificationInputSchema,
+from app.lang_graphs.chat_v1.handlers.intents.follow_up_question.workers.follow_up_rewrite_worker import (
+    follow_up_rewrite_worker,
+    FollowUpRewriteInputSchema
 )
 
-follow_up_test_cases = [
-    {
-        "previous_query": "What are the best face cleansers for dry skin?",
-        "query": "Which of these is the most affordable?"
-    },
-    {
-        "previous_query": "Can you recommend a sunscreen for oily skin?",
-        "query": "What about fragrance-free options only?"
-    },
-    {
-        "previous_query": "Suggest a moisturizer for sensitive skin.",
-        "query": "How does that compare to Cetaphil?"
-    },
-    {
-        "previous_query": "What do people think of La Roche-Posay cleansers?",
-        "query": "Any mention of allergic reactions in the reviews?"
-    },
-    {
-        "previous_query": "I need a serum for hyperpigmentation.",
-        "query": "Does it contain niacinamide?"
-    },
-    {
-        "previous_query": "Which eye creams are good for dark circles?",
-        "query": "What about puffiness?"
-    },
-    {
-        "previous_query": "List top 5 exfoliators for dry skin.",
-        "query": "Can you sort them by price?"
-    },
-    {
-        "previous_query": "Recommend a good cleanser for acne-prone skin.",
-        "query": "Does Neutrogena have one like that?"
-    }
-]
+prev_user_query = "What is the best sunscreen for oily skin?"
+prev_ai_response = "I recommend the La Roche-Posay Anthelios Clear Skin Dry Touch Sunscreen SPF 60 for oily skin. It's lightweight and non-comedogenic."
+follow_up_query = "Can you tell me more about its ingredients and how it feels on the skin?"
 
-if __name__ == '__main__':
-    for test_case in follow_up_test_cases:
-        print(f"Prev: {test_case['previous_query']}")
-        print(f"Curr: {test_case['query']}")
+payload = FollowUpRewriteInputSchema(
+    prev_user_query=prev_user_query,
+    prev_ai_response=prev_ai_response,
+    follow_up_query=follow_up_query
+)
 
-        res = intent_classification_worker.run(IntentClassificationInputSchema(
-            query=test_case['query'],
-            previous_query=test_case['previous_query']
-        ))
-        print(f"Intent: {res.intent}")
-        print("-" * 40)
+res = follow_up_rewrite_worker.run(payload)
+rewritten_query = res.rewritten_query
+
+print(f"Rewritten query: {rewritten_query}")
