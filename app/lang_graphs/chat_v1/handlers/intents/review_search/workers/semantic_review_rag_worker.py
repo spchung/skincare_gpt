@@ -40,7 +40,6 @@ review_search_rag_worker = BaseAgent(
     config=BaseAgentConfig(
         client=instructor.from_openai(llm),
         model='gpt-4o-mini',
-        temperature=0,
         input_schema=ReviewSearchRAGInputSchema,
         output_schema=ReviewSearchRAGOutputSchema,
         system_prompt_generator=prompt,

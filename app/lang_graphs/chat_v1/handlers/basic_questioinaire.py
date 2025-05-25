@@ -52,7 +52,7 @@ def get_init_question(form: BasicQuestionaireModel) -> Tuple[str, str]:
     return init_question, field
 
 ## invocation function
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+llm = ChatOpenAI(model="gpt-4o-mini")
     
 # process user answer
 def answer_field(current_form: BasicQuestionaireModel, field: str, user_answer: str) -> BasicQuestionaireModel:

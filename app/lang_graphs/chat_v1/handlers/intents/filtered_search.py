@@ -56,7 +56,6 @@ extract_filters_worker = BaseAgent(
     config=BaseAgentConfig(
         client=instructor.from_openai(llm),
         model='gpt-4o-mini',
-        temperature=0,
         input_schema=FilterExtractInputSchema,
         output_schema=FilterExtractOutputSchema,
         system_prompt_generator=prompt,

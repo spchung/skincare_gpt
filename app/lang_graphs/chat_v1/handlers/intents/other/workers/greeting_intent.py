@@ -37,7 +37,6 @@ worker = BaseAgent(
     config=BaseAgentConfig(
         client=instructor.from_openai(llm),
         model='gpt-4o-mini',
-        temperature=0,
         input_schema=GreetingIntentInputSchema,
         output_schema=GreetingIntentOutputSchema,
         system_prompt_generator=prompt,

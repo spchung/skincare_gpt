@@ -29,7 +29,6 @@ worker = BaseAgent(
     config=BaseAgentConfig(
         client=instructor.from_openai(llm),
         model='gpt-4o-mini',
-        temperature=0,
         input_schema=FollowUpRagResInputSchema,
         output_schema=FollowUpRagResOutputSchema,
         system_prompt_generator=prompt,

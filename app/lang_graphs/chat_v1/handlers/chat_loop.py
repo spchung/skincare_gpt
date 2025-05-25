@@ -4,7 +4,7 @@ from langchain_core.messages import HumanMessage, AIMessage
 from app.lang_graphs.chat_v1.graph_state import MainGraphState
 from app.lang_graphs.chat_v1.memory.thread_context import get_context_store
 
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+llm = ChatOpenAI(model="gpt-4o-mini")
 
 def init_message_handler(state: MainGraphState):
     '''

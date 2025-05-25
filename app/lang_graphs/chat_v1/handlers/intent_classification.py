@@ -1,7 +1,7 @@
 from pydantic import Field
 import instructor
 from atomic_agents.agents.base_agent import BaseAgent, BaseAgentConfig, BaseIOSchema
-from atomic_agents.lib.components.system_prompt_generator import SystemPromptGenerator, SystemPromptContextProviderBase
+from atomic_agents.lib.components.system_prompt_generator import SystemPromptGenerator
 from app.lang_graphs.chat_v1.graph_state import MainGraphState
 from app.internal.client import llm
 from typing import Optional
@@ -46,7 +46,10 @@ worker = BaseAgent(
     config=BaseAgentConfig(
         client=instructor.from_openai(llm),
         model='gpt-4o-mini',
-        temperature=0,
+        model_api_parameters={
+            "temperature": 0,
+            "max_tokens": 100,
+        },
         input_schema=IntentClassificationInputSchema,
         output_schema=IntentClassificationOutputSchema,
         system_prompt_generator=prompt,

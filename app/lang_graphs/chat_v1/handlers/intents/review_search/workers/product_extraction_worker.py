@@ -42,7 +42,6 @@ product_extraction_worker = BaseAgent(
     config=BaseAgentConfig(
         client=instructor.from_openai(llm),
         model='gpt-4o-mini',
-        temperature=0,
         input_schema=InputExtractionInputSchema,
         output_schema=InputExtractionOutputSchema,
         system_prompt_generator=prompt,
