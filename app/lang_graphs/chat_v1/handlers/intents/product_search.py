@@ -12,6 +12,7 @@ from app.semantic_search.products import product_search
 from app.memory.postgres_memory import EntityTrackingSession
 from atomic_agents.agents.base_agent import BaseAgent, BaseAgentConfig, BaseIOSchema
 from atomic_agents.lib.components.system_prompt_generator import SystemPromptGenerator
+from app.lang_graphs.chat_v1.handlers.vector_search_rewrite_worker import QueryRewriteInputSchema, vector_search_rewrite_agent
 
 class ProductSearchRAGInputSchema(BaseIOSchema):
     """ ProductSearchRAGInputSchema """
@@ -64,9 +65,11 @@ class ProductSearchState(TypedDict):
 def search_products(state: ProductSearchState):
     # Get the query from the state
     query = state["query"]
+    rewrite_res = vector_search_rewrite_agent.run(QueryRewriteInputSchema(query=query))
+    rewritten_query = rewrite_res.rewritten_query
     
     # Search for products using the semantic search
-    products = product_search(query, limit=3)
+    products = product_search(rewritten_query, limit=3)
     
     # Format the results
     if not products:

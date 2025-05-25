@@ -1,13 +1,12 @@
-from typing import List
+from typing_extensions import TypedDict
+from typing import List, TypedDict, Annotated, Sequence
 from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, END
-from typing import TypedDict, Annotated, Sequence
-from typing_extensions import TypedDict
+from app.models import QReview
 from app.semantic_search import review_search
 from app.models.sephora import SephoraProductSQLModel, SephoraProductViewModel, SephoraReviewSQLModel, SephoraReviewViewModel
 from app.internal.postgres import get_db
 from app.lang_graphs.chat_v1.graph_state import MainGraphState
-from app.models import QReview
 from app.memory.postgres_memory import EntityTrackingSession
 from app.lang_graphs.chat_v1.handlers.intents.review_search. \
     workers.semantic_review_rag_worker import ReviewSearchRAGInputSchema, review_search_rag_worker
@@ -17,6 +16,7 @@ from app.lang_graphs.chat_v1.handlers.intents.review_search. \
     workers.specific_product_rag_worker import SpecificProductRecuewRAGInputSchema, specific_product_rag_worker
 from app.lang_graphs.chat_v1.handlers.intents.review_search. \
     workers.specific_product_not_found_rag_worker import SpecificProdNotFoundInputSchema, specific_prod_not_found_rag_worker
+from app.lang_graphs.chat_v1.handlers.vector_search_rewrite_worker import QueryRewriteInputSchema, vector_search_rewrite_agent
 
 class ReviewSearchState(TypedDict):
     messages: Annotated[Sequence[HumanMessage | AIMessage], "The messages in the conversation"]
@@ -51,8 +51,6 @@ def handle_product_specific_search(state: ReviewSearchState):
     brand_name = extraction.brand_name
     product_id = extraction.product_id
 
-    print(f"product_name: {product_name}, brand_name: {brand_name}, product_id: {product_id}")
-
     # find product 
     with EntityTrackingSession(next(get_db()), state["thread_id"]) as db:
         pg_product = None
@@ -85,7 +83,9 @@ def handle_product_specific_search(state: ReviewSearchState):
 
 def semantic_search_reviews(state: ReviewSearchState):
     query = state["query"]
-    q_reviews = review_search(query, limit=3)
+    rewrite_res = vector_search_rewrite_agent.run(QueryRewriteInputSchema(query=query))
+    rewritten_query = rewrite_res.rewritten_query
+    q_reviews = review_search(rewritten_query, limit=3)
     return {"q_reviews": q_reviews}
 
 def get_sql_reviews(state: ReviewSearchState):
@@ -138,7 +138,9 @@ def specific_product_rag_response(state: ReviewSearchState):
 
 def specific_product_not_found_recommendation(state: ReviewSearchState):
     query = state["query"]
-    q_reviews = review_search(query, limit=3)
+    rewrite_res = vector_search_rewrite_agent.run(QueryRewriteInputSchema(query=query))
+    rewritten_query = rewrite_res.rewritten_query
+    q_reviews = review_search(rewritten_query, limit=3)
 
     # get the top 3 products and their reviews
     if not q_reviews:
@@ -186,7 +188,6 @@ def specific_product_not_found_rag_response(state: ReviewSearchState):
         )
     )
     return {"messages": [AIMessage(content=res.response)]}
-
 
 def create_review_search_graph():
     # Create the graph
