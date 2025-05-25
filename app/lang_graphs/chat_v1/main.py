@@ -27,10 +27,9 @@ def questionnaire_router(state: State):
         return { "questionnaire_complete": True}
     return { "questionnaire_complete": is_questionnaire_complete(state['questionnaire']) }
 
-def decision_router(state: State):
-    if state['questionnaire_complete']:
-        return "intent_classification_router"
-    return "questionnaire_handler"
+def follow_up_handler(state: State):
+    print("Follow-up handler invoked")
+    return state
 
 # build graph
 graph_builder.add_node("questionnaire_router", questionnaire_router)
@@ -41,11 +40,12 @@ graph_builder.add_node("other_handler", other_handler)
 graph_builder.add_node("product_search_handler", product_search_handler)
 graph_builder.add_node("review_search_handler", review_search_handler)
 graph_builder.add_node("filtered_search_handler", filtered_search_handler)
+graph_builder.add_node("follow_up_handler", follow_up_handler)
 
 graph_builder.add_edge(START, "questionnaire_router")
 graph_builder.add_conditional_edges(
     "questionnaire_router", 
-    decision_router,
+    lambda state: "intent_classification_router" if state['questionnaire_complete'] else "questionnaire_handler",
     {
         "intent_classification_router": "intent_classification_router",
         "questionnaire_handler": "questionnaire_handler",
@@ -59,9 +59,9 @@ graph_builder.add_conditional_edges(
     {
         "product_search": "product_search_handler",
         "review_search": "review_search_handler",
-        "compare": "chat_handler",
         "filter_search": "filtered_search_handler",
         "other": "other_handler",
+        'follow-up': "follow_up_handler",  # Assuming follow-up_handler is defined elsewhere
     }
 )
 graph_builder.add_edge("questionnaire_handler", END)

@@ -34,8 +34,9 @@ if prompt := st.chat_input():
     st.session_state.messages.append(user_msg)
     st.chat_message("user").write(prompt)
 
+    msgs = st.session_state.messages
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
-            response_msg = process_chat_message_sync([user_msg], '123')
+            response_msg = process_chat_message_sync(msgs, '123')
             st.session_state.messages.append(response_msg)
             st.write(response_msg.content)
