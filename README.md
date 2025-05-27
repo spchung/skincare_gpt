@@ -6,6 +6,8 @@ A conversational AI system that helps users discover skincare products and under
 
 This is a FastAPI-based chatbot that processes user queries about skincare products and reviews. It uses LangGraph for conversation orchestration and integrates with OpenAI's GPT models for intelligent responses.
 
+There is also a Streamlit interface available in `chat_ui.py`
+
 ## Key Features
 
 - **Intent Classification**: Automatically routes user queries (product search, review analysis, filtered search, follow-ups)
