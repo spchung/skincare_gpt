@@ -26,7 +26,7 @@ There is also a Streamlit interface available in `chat_ui.py`
 ## Tech Stack
 
 ```
-FastAPI + LangGraph + OpenAI + Qdrant + PostgreSQL + Redis
+FastAPI/Streamlit + LangGraph + OpenAI + Qdrant + PostgreSQL + Redis
 ```
 
 ## Project Structure
@@ -38,6 +38,7 @@ app/
 ├── routes/                 # API endpoints
 ├── semantic_search/        # Vector search logic
 └── memory/                 # Context management
+chat_ui.py                  # streamlit ui
 ```
 
 This system demonstrates advanced conversational AI patterns including multi-step reasoning, context preservation, and hybrid search approaches.
