@@ -80,7 +80,6 @@ def extract_filters(state: FilteredSearchState):
     # Extract filters using the worker
     filter_response = extract_filters_worker.run(FilterExtractInputSchema(query=query))
     
-    print(filter_response.extracted_filters)
     return {"filters": filter_response.extracted_filters}
 
 def search_products(state: FilteredSearchState):
@@ -106,7 +105,9 @@ def format_response(state: FilteredSearchState):
     if sql_products is None:
         return {"messages": [AIMessage(content=f"No products found matching your filters.")]}
     
-    rag_response = product_rag_output_worker.run(ProductSearchRAGInputSchema(query=state["query"], products=sql_products))
+    products_as_dicts = [product.model_dump() for product in sql_products]
+    
+    rag_response = product_rag_output_worker.run(ProductSearchRAGInputSchema(query=state["query"], products=products_as_dicts))
     
     return {"messages": [AIMessage(content=rag_response.response)]}
 

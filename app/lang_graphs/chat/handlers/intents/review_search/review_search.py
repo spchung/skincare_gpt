@@ -118,8 +118,12 @@ def semantic_review_rag_response(state: ReviewSearchState):
     if sql_reviews is None or sql_products is None:
         return {"messages": [AIMessage(content=f"No reviews found for your query.")]}
     
+    # Convert to dicts to avoid JSON serialization issues
+    reviews_as_dicts = [review.model_dump() for review in sql_reviews]
+    products_as_dicts = [product.model_dump() for product in sql_products]
+    
     rag_response = review_search_rag_worker.run(
-        ReviewSearchRAGInputSchema(query=state["query"], reviews=sql_reviews, products=sql_products))
+        ReviewSearchRAGInputSchema(query=state["query"], reviews=reviews_as_dicts, products=products_as_dicts))
     
     return {"messages": [AIMessage(content=rag_response.response)]}
 

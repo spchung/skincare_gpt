@@ -18,7 +18,7 @@ from app.lang_graphs.chat.handlers.vector_search_rewrite_worker import QueryRewr
 class ProductSearchRAGInputSchema(BaseIOSchema):
     """ ProductSearchRAGInputSchema """
     query: str = Field(None, description="The user's query.")
-    products: List[SephoraProductViewModel] = Field(None, description="The products found in the semantic search.")
+    products: List[dict] = Field(None, description="The products found in the semantic search.")
 
 class ProductSearchRAGOutputSchema(BaseIOSchema):
     """ ProductSearchRAGOutputSchema """
@@ -95,7 +95,7 @@ def format_response(state: ProductSearchState):
     if sql_products is None:
         return {"messages": [AIMessage(content=f"No products found for your query.")]}
     
-    # Convert to dicts to avoid JSON serialization issues
+    # # Convert to dicts to avoid JSON serialization issues
     products_as_dicts = [product.model_dump() for product in sql_products]
     
     rag_response = worker.run(ProductSearchRAGInputSchema(
