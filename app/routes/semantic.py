@@ -1,9 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from typing import List, Optional
-from app.internal.postgres import get_db
-from app.models.sephora import SephoraReviewSQLModel, SephoraReviewViewModel
-from app.semantic_search import review_search, generic_search
+from app.semantic_search.v2 import review_search, generic_search
 
 router = APIRouter()
 

@@ -61,3 +61,4 @@ def product_filtered_search(query_text: str, product_search_filters: List[Produc
     for point in points:
         results.append(QProduct(**point.payload))
     return results
+

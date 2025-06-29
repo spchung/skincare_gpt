@@ -8,7 +8,8 @@ from app.internal.client import llm
 from app.internal.postgres import get_db
 from app.lang_graphs.chat.graph_state import MainGraphState
 from app.models.sephora import SephoraProductSQLModel, SephoraProductViewModel
-from app.semantic_search.products import product_search
+# from app.semantic_search.v1.products import product_search
+from app.semantic_search.v2.products import product_search
 from app.memory.postgres_memory import EntityTrackingSession
 from atomic_agents.agents.base_agent import BaseAgent, BaseAgentConfig, BaseIOSchema
 from atomic_agents.lib.components.system_prompt_generator import SystemPromptGenerator

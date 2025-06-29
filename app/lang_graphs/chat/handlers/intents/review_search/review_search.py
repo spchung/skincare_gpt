@@ -3,7 +3,8 @@ from typing import List, TypedDict, Annotated, Sequence
 from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, END
 from app.models import QReview
-from app.semantic_search import review_search
+# from app.semantic_search.v1 import review_search
+from app.semantic_search.v2 import review_search
 from app.models.sephora import SephoraProductSQLModel, SephoraProductViewModel, SephoraReviewSQLModel, SephoraReviewViewModel
 from app.internal.postgres import get_db
 from app.lang_graphs.chat.graph_state import MainGraphState

@@ -341,8 +341,8 @@ def migrate_reviews_to_qdrant(limit: int = None):
 def main():
     # Load environment variables
     clear_collection(COLLECTION_NAME)
-    migrate_products_to_qdrant(limit=10)
-    migrate_reviews_to_qdrant(limit=10)
+    migrate_products_to_qdrant(size=200)
+    migrate_reviews_to_qdrant(size=200)
 
 
 if __name__ == "__main__":
