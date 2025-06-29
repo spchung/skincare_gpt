@@ -3,6 +3,7 @@
 .secrets.*
 
 /data_engineering
+/qdrant_data
 
 # fly.io 
 .github/workflows/fly-deploy.yml

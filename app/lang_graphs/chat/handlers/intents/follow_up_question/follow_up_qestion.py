@@ -1,5 +1,5 @@
 
-from app.lang_graphs.chat_v1.graph_state import MainGraphState
+from app.lang_graphs.chat.graph_state import MainGraphState
 from .workers.follow_up_rewrite_worker import follow_up_rewrite_worker, FollowUpRewriteInputSchema
 from .workers.follow_up_rag_worker import FollowUpRagResInputSchema, follow_up_rag_worker
 from app.internal.redis import RedisClient

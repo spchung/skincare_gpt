@@ -1,8 +1,8 @@
 from typing import Optional, Tuple
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, AIMessage
-from app.lang_graphs.chat_v1.graph_state import MainGraphState
-from app.lang_graphs.chat_v1.memory.thread_context import get_context_store
+from app.lang_graphs.chat.graph_state import MainGraphState
+from app.lang_graphs.chat.memory.thread_context import get_context_store
 
 llm = ChatOpenAI(model="gpt-4o-mini")
 

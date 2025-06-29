@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from app.lang_graphs.chat_v1.models.basic_questioinaire import BasicQuestionaireModel
+from app.lang_graphs.chat.models.basic_questioinaire import BasicQuestionaireModel
 
 
 class ThreadContext(BaseModel):

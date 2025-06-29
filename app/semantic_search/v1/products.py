@@ -3,7 +3,7 @@ from app.internal.embedding import create_embedding_768
 from app.internal.qdrant import client
 from app.models import QProduct
 from typing import List
-from app.lang_graphs.chat_v1.models import ProductSearchFilter
+from app.lang_graphs.chat.models import ProductSearchFilter
 
 COLLECTION_NAME = "SkincareGPT_768"
 
@@ -61,3 +61,4 @@ def product_filtered_search(query_text: str, product_search_filters: List[Produc
     for point in points:
         results.append(QProduct(**point.payload))
     return results
+

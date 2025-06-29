@@ -1,6 +1,6 @@
 import pytest
-from app.lang_graphs.chat_v1.handlers.intent_classification import worker as intent_classification_worker
-from app.lang_graphs.chat_v1.handlers.intent_classification import IntentClassificationInputSchema
+from app.lang_graphs.chat.handlers.intent_classification import worker as intent_classification_worker
+from app.lang_graphs.chat.handlers.intent_classification import IntentClassificationInputSchema
 
 product_search_queries = [
     "What are the best face cleansers for dry skin?",

@@ -3,10 +3,10 @@ from langgraph.graph import StateGraph, START, END
 from .memory.thread_context import ThreadContextStore
 from langchain_core.messages import HumanMessage, AIMessage
 from .handlers.basic_questioinaire import questionnaire_handler, is_questionnaire_complete
-from app.lang_graphs.chat_v1.graph_state import MainGraphState
+from app.lang_graphs.chat.graph_state import MainGraphState
 from .handlers.chat_loop import chat_handler
 from langchain.chat_models import init_chat_model
-from app.lang_graphs.chat_v1.handlers import (
+from app.lang_graphs.chat.handlers import (
     intent_classification_router, 
     other_handler,
     product_search_handler,
@@ -27,10 +27,6 @@ def questionnaire_router(state: MainGraphState):
     if state['questionnaire_complete']:
         return { "questionnaire_complete": True}
     return { "questionnaire_complete": is_questionnaire_complete(state['questionnaire']) }
-
-# def follow_up_handler(state: MainGraphState):
-#     res = follow_up_question_handler(state)
-#     return state
 
 # build graph
 graph_builder.add_node("questionnaire_router", questionnaire_router)

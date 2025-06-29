@@ -4,7 +4,7 @@ Other intent shoudld be handled with suggested questions to ask the user.
 from pydantic import Field
 from app.internal.client import llm
 import instructor
-from app.lang_graphs.chat_v1.graph_state import MainGraphState
+from app.lang_graphs.chat.graph_state import MainGraphState
 from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.graph import StateGraph, END
 from typing import Annotated, Sequence, TypedDict
