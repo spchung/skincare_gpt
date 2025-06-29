@@ -4,7 +4,7 @@ import sys
 # Add the project root to Python path (go up 2 levels from dataV2/2_qdrant/)
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 import uuid
-from app.internal.embedding_v2 import create_openai_embedding, create_review_embedding, create_product_embedding
+from app.internal.embedding_v2 import create_review_embedding, create_product_embedding
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
 import psycopg2

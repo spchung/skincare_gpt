@@ -22,6 +22,9 @@ thread_context_store = ThreadContextStore()
 # Initialize graph
 graph_builder = StateGraph(MainGraphState)
 
+# prev intent
+prev_intent = None
+
 ## utility nodes
 def questionnaire_router(state: MainGraphState):
     if state['questionnaire_complete']:

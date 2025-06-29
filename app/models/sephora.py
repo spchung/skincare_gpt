@@ -15,7 +15,7 @@ class SephoraProductRedisModel(BaseModel):
     product_name: str
     brand_name: str
     rating: Optional[float] = None
-    ingredients: Optional[List[Any]] = None
+    ingredients: Optional[List[str]] = None
     price_usd: float
 
 class SephoraReviewRedisModel(BaseModel):
@@ -33,12 +33,18 @@ class SephoraProductViewModel(BaseModel):
     rating: Optional[float] = None
     reviews: Optional[int] = None
     size: Optional[str] = None
-    ingredients: Optional[List[Any]] = None
+    ingredients: Optional[List[str]] = None
     price_usd: float
-    highlights: Optional[List[Any]] = None
+    highlights: Optional[List[str]] = None
     primary_category: str
     secondary_category: Optional[str] = None
     teritary_category: Optional[str] = None
+    
+    class Config:
+        json_encoders = {
+            # Ensure all list items are converted to strings
+            list: lambda v: [str(item) if item is not None else None for item in v] if v else []
+        }
 
 class SephoraReviewViewModel(BaseModel):
     review_id: str
@@ -81,6 +87,15 @@ class SephoraProductSQLModel(Base):
     teritary_category = Column(String)
 
     def to_pydantic(self) -> SephoraProductViewModel:
+        # Convert ingredients and highlights to list of strings
+        ingredients_list = []
+        if self.ingredients:
+            ingredients_list = [str(item) for item in self.ingredients if item is not None]
+        
+        highlights_list = []
+        if self.highlights:
+            highlights_list = [str(item) for item in self.highlights if item is not None]
+        
         return SephoraProductViewModel(
             product_id=self.product_id,
             product_name=self.product_name,
@@ -90,9 +105,9 @@ class SephoraProductSQLModel(Base):
             rating=self.rating,
             reviews=self.reviews,
             size=self.size,
-            ingredients=self.ingredients or [],  # Convert None to empty list
+            ingredients=ingredients_list,
             price_usd=self.price_usd,
-            highlights=self.highlights or [],  # Convert None to empty list
+            highlights=highlights_list,
             primary_category=self.primary_category,
             secondary_category=self.secondary_category,
             teritary_category=self.teritary_category
