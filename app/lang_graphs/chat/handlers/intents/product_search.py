@@ -95,7 +95,13 @@ def format_response(state: ProductSearchState):
     if sql_products is None:
         return {"messages": [AIMessage(content=f"No products found for your query.")]}
     
-    rag_response = worker.run(ProductSearchRAGInputSchema(query=state["query"], products=sql_products))
+    # Convert to dicts to avoid JSON serialization issues
+    products_as_dicts = [product.model_dump() for product in sql_products]
+    
+    rag_response = worker.run(ProductSearchRAGInputSchema(
+        query=state["query"],
+        products=products_as_dicts  # Pass dicts instead of Pydantic models
+    ))
     return {"messages": [AIMessage(content=rag_response.response)]}
 
 def create_product_search_graph():

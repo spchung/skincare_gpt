@@ -21,7 +21,7 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - /Users/stephen/Nottingham/portfolio/volumes/redis:/data
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/redis:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s

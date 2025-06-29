@@ -1,5 +1,5 @@
 # Use official Python base image
-FROM python:3.13-slim
+FROM python:3.11-slim
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -11,14 +11,19 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update --fix-missing && \
+    apt-get clean && \
+    apt-get install -y --no-install-recommends --allow-unauthenticated \
     build-essential \
     curl \
     git \
     libpq-dev \
+    ca-certificates \
+    && apt-get autoremove -y \
+    && apt-get autoclean \
+    && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /var/tmp/* \
     && curl -sSL https://install.python-poetry.org | python3 - \
-    && ln -s /root/.local/bin/poetry /usr/local/bin/poetry \
-    && rm -rf /var/lib/apt/lists/*
+    && ln -s /root/.local/bin/poetry /usr/local/bin/poetry
 
 # install packages
 COPY pyproject.toml poetry.lock* /app/

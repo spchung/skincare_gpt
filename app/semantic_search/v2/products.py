@@ -1,5 +1,4 @@
 from qdrant_client import models
-# from app.internal.embedding import create_embedding_768
 from app.internal.embedding_v2 import create_openai_embedding
 from app.internal.qdrant import client
 from app.models import QProductV2
