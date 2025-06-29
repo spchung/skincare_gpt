@@ -6,9 +6,9 @@ authors = ["Stephen Chung <53108134+spchung@users.noreply.github.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.13"
+python = "^3.12"
 openai = "^1.77.0"
-psycopg2 = "^2.9.10"
+psycopg2-binary = "^2.9.10"
 pydantic = "^2.11.4"
 qdrant-client = "^1.14.2"
 atomic-agents = "^1.1.2"
