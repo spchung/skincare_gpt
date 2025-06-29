@@ -3,7 +3,7 @@ from app.internal.embedding import create_embedding_768
 from app.internal.qdrant import client
 from app.models import QProduct
 from typing import List
-from app.lang_graphs.chat_v1.models import ProductSearchFilter
+from app.lang_graphs.chat.models import ProductSearchFilter
 
 COLLECTION_NAME = "SkincareGPT_768"
 

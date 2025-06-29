@@ -6,17 +6,17 @@ from app.models import QReview
 from app.semantic_search import review_search
 from app.models.sephora import SephoraProductSQLModel, SephoraProductViewModel, SephoraReviewSQLModel, SephoraReviewViewModel
 from app.internal.postgres import get_db
-from app.lang_graphs.chat_v1.graph_state import MainGraphState
+from app.lang_graphs.chat.graph_state import MainGraphState
 from app.memory.postgres_memory import EntityTrackingSession
-from app.lang_graphs.chat_v1.handlers.intents.review_search. \
+from app.lang_graphs.chat.handlers.intents.review_search. \
     workers.semantic_review_rag_worker import ReviewSearchRAGInputSchema, review_search_rag_worker
-from app.lang_graphs.chat_v1.handlers.intents.review_search. \
+from app.lang_graphs.chat.handlers.intents.review_search. \
     workers.product_extraction_worker import product_extraction_worker, InputExtractionInputSchema, InputExtractionOutputSchema
-from app.lang_graphs.chat_v1.handlers.intents.review_search. \
+from app.lang_graphs.chat.handlers.intents.review_search. \
     workers.specific_product_rag_worker import SpecificProductRecuewRAGInputSchema, specific_product_rag_worker
-from app.lang_graphs.chat_v1.handlers.intents.review_search. \
+from app.lang_graphs.chat.handlers.intents.review_search. \
     workers.specific_product_not_found_rag_worker import SpecificProdNotFoundInputSchema, specific_prod_not_found_rag_worker
-from app.lang_graphs.chat_v1.handlers.vector_search_rewrite_worker import QueryRewriteInputSchema, vector_search_rewrite_agent
+from app.lang_graphs.chat.handlers.vector_search_rewrite_worker import QueryRewriteInputSchema, vector_search_rewrite_agent
 
 class ReviewSearchState(TypedDict):
     messages: Annotated[Sequence[HumanMessage | AIMessage], "The messages in the conversation"]

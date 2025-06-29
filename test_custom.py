@@ -4,7 +4,7 @@ from qdrant_client import models
 from app.internal.embedding import create_embedding_768
 from app.internal.postgres import get_db
 from app.models.sephora import SephoraReviewSQLModel, SephoraProductSQLModel
-from app.lang_graphs.chat_v1.handlers.vector_search_rewrite_worker import QueryRewriteInputSchema, vector_search_rewrite_agent
+from app.lang_graphs.chat.handlers.vector_search_rewrite_worker import QueryRewriteInputSchema, vector_search_rewrite_agent
 
 COLLECTION_NAME = "SkincareGPT_768"
 

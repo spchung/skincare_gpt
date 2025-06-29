@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import products, reviews, chat, semantic, test
+from app.routes import products, reviews, chat, semantic, test, semantics_v2
 from fastapi.responses import HTMLResponse
 
 app = FastAPI()
@@ -29,4 +29,5 @@ app.include_router(reviews.router, prefix="/api/v1", tags=["reviews"])
 app.include_router(chat.router, prefix="/api/v1", tags=["chat"]) 
 app.include_router(semantic.router, prefix="/api/v1", tags=["semantic"])
 app.include_router(test.router, prefix="/api/v1", tags=["test"])
+app.include_router(semantics_v2.router, prefix="/api/v2", tags=["semantics"])
 app.include_router(chat.ws_router, prefix="/ws/v1", tags=["chat"])

@@ -6,13 +6,13 @@ from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, END
 from app.internal.client import llm
 from app.internal.postgres import get_db
-from app.lang_graphs.chat_v1.graph_state import MainGraphState
+from app.lang_graphs.chat.graph_state import MainGraphState
 from app.models.sephora import SephoraProductSQLModel, SephoraProductViewModel
 from app.semantic_search.products import product_filtered_search
 from atomic_agents.agents.base_agent import BaseAgent, BaseAgentConfig, BaseIOSchema
 from atomic_agents.lib.components.system_prompt_generator import SystemPromptGenerator
-from app.lang_graphs.chat_v1.models.filtered_search import ProductSearchFilter
-from app.lang_graphs.chat_v1.handlers.intents.product_search import ProductSearchRAGInputSchema, worker as product_rag_output_worker
+from app.lang_graphs.chat.models.filtered_search import ProductSearchFilter
+from app.lang_graphs.chat.handlers.intents.product_search import ProductSearchRAGInputSchema, worker as product_rag_output_worker
 from app.memory.postgres_memory import EntityTrackingSession
 
 class FilterExtractInputSchema(BaseIOSchema):

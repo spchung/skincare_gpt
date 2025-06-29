@@ -2,7 +2,7 @@ from pydantic import Field
 import instructor
 from atomic_agents.agents.base_agent import BaseAgent, BaseAgentConfig, BaseIOSchema
 from atomic_agents.lib.components.system_prompt_generator import SystemPromptGenerator
-from app.lang_graphs.chat_v1.graph_state import MainGraphState
+from app.lang_graphs.chat.graph_state import MainGraphState
 from app.internal.client import llm
 from typing import Optional
 from langchain_core.messages import HumanMessage

@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from typing import Optional, List, Dict, Any, Union
 from langchain_core.messages import HumanMessage, AIMessage
 from dotenv import load_dotenv
-from app.lang_graphs.chat_v1.main import process_chat_message_stream, process_chat_message_sync
+from app.lang_graphs.chat.main import process_chat_message_stream, process_chat_message_sync
 import logging
 from fastapi import WebSocket
 
