@@ -6,8 +6,8 @@ from langchain_core.messages import HumanMessage, AIMessage
 
 import streamlit as st
 
-st.title("💬 Chatbot")
-st.caption("🚀 A Streamlit chatbot powered by OpenAI")
+st.title("💬 Skincare GPT")
+st.caption("RAG Chat over Sephora Product and Review Database.")
 
 if "messages" not in st.session_state:
     st.session_state["messages"] = [AIMessage(content="Hello! Welcome to Skincare GPT. I'm here to help you with your skincare questions and concerns. How can I help you today?")]
