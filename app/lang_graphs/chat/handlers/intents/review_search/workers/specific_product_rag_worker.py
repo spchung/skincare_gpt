@@ -9,8 +9,8 @@ from app.internal.client import llm
 class SpecificProductRecuewRAGInputSchema(BaseIOSchema):
     """ SpecificProductRecuewRAGInputSchema """
     query: str = Field(None, description="The user's query.")
-    reviews: List[SephoraReviewViewModel] = Field(None, description="The reviews found in the semantic search.")
-    product: SephoraProductViewModel = Field(None, description="The product information in question.")
+    reviews: List[dict] = Field(None, description="The reviews found in the semantic search.")
+    product: dict = Field(None, description="The product information in question.")
 
 class SpecificProductRecuewRAGOutputSchema(BaseIOSchema):
     """ SpecificProductRecuewRAGOutputSchema """
