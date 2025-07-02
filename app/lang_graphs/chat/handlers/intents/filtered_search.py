@@ -107,7 +107,11 @@ def format_response(state: FilteredSearchState):
     
     products_as_dicts = [product.model_dump() for product in sql_products]
     
-    rag_response = product_rag_output_worker.run(ProductSearchRAGInputSchema(query=state["query"], products=products_as_dicts))
+    rag_response = product_rag_output_worker.run(
+        ProductSearchRAGInputSchema(
+            query=state["query"], products=products_as_dicts
+        )
+    )
     
     return {"messages": [AIMessage(content=rag_response.response)]}
 

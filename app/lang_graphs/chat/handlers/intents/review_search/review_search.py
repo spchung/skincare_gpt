@@ -131,12 +131,14 @@ def specific_product_rag_response(state: ReviewSearchState):
     
     sql_reviews = state["sql_reviews"]
     sql_product = state["sql_products"][0]
-    # products_as_dicts = [product.model_dump() for product in sql_products]
+
+    reviews_as_dicts = [review.model_dump() for review in sql_reviews]
+
     res = specific_product_rag_worker.run(
         SpecificProductRecuewRAGInputSchema(
-            query=state["query"],
-            reviews=[review.model_dump() for review in sql_reviews],
-            product=sql_product.model_dump()
+            query = state["query"],
+            reviews = reviews_as_dicts,
+            product = sql_product.model_dump()
         )
     )
     return {"messages": [AIMessage(content=res.response)]}
